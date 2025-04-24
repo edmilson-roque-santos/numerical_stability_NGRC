@@ -10,7 +10,7 @@ Created on Mon Mar  3 14:28:46 2025
 import numpy as np
 from scipy import linalg as LA
 import os 
-
+from prettytable import PrettyTable
 import sympy as spy
 
 from main.ng_reservoir import ng_reservoir as ng
@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 parameters = dict()
 
 degree = 2
-parameters['exp_name'] = 'Euler_plot_fig1'
+parameters['exp_name'] = 'computing thetas '#'Euler_plot_fig1'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -138,6 +138,7 @@ params = RC.params
 
 S = R @ R.T 
 s = LA.svd(R.T, lapack_driver='gesvd', compute_uv=False)
+cond_number = s.max()/s.min()
 
 if not parameters['use_qr']:
     #Readout matrix calculation
@@ -201,11 +202,11 @@ if v_t_test.shape[0] == 3:
     tls.plot_2d_all_combinations(s_t_test, v_t_test)
     filename = params['exp_name']
     
-    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = filename+'_top_stats') #
+    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = None) #filename+'_top_stats'
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(25/(0.9056*dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 1/0.9056,
-                    transient_plot = int(15/(0.9056*dt)), filename = filename+'_compare') #
+                    transient_plot = int(15/(0.9056*dt)), filename = None) #filename+'_compare'
     
 # Compute comparison wrt to the original vector
 c_matrix_true = get_true_coeff_Lorenz(params)
@@ -214,9 +215,34 @@ if parameters['use_orthonormal']:
     W_out_t = RC.params['R'] @ W_out.T/dt        
 else:
     W_out_t = W_out.T/dt        
+
+
+computing_thetas = True
+
+if computing_thetas:    
+    thetas = PrettyTable(['Method', 'theta_x', 'theta_y', 'theta_z'])
     
-cond_number = s.max()/s.min()
-error = LA.norm(W_out.T/dt - c_matrix_true, axis = 0)/LA.norm(c_matrix_true, axis = 0)
-y = s_t_train.T - u_t_train.T
-theta = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out @ R, axis = 1)/LA.norm(y, axis = 1))
-theta_c = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*dt*c_matrix_true.T @ R, axis = 1)/LA.norm(y, axis = 1))
+    y = s_t_train.T - u_t_train.T
+    
+    # Cholesky
+    W_out_cho = ridge(s_t_train.T - u_t_train.T, R, 
+                      reg_param = reg_param, solver = 'cholesky')
+    
+    theta_cho = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_cho @ R, axis = 1)/LA.norm(y, axis = 1))
+    thetas.add_row(["cholesky",   theta_cho[0], theta_cho[1], theta_cho[2]])
+    
+    # SVD
+    W_out_svd = ridge(s_t_train.T - u_t_train.T, R, 
+                      reg_param = reg_param, solver = 'SVD')
+
+    theta_svd = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_svd @ R, axis = 1)/LA.norm(y, axis = 1))
+    thetas.add_row(["svd",   theta_svd[0], theta_svd[1], theta_svd[2]])
+    # LU
+    W_out_lu = ridge(s_t_train.T - u_t_train.T, R, 
+                      reg_param = reg_param, solver = 'LU')
+
+    theta_lu = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_lu @ R, axis = 1)/LA.norm(y, axis = 1))
+    thetas.add_row(["lu",   theta_lu[0], theta_lu[1], theta_lu[2]])
+    
+    print(thetas)
+
