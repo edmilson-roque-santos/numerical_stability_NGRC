@@ -609,6 +609,7 @@ def plot_succ_max(s_t, v_t, degree_int = 3, Bspline = False,
 def plot_psd(X_t, u_t, dt, 
              nperseg = None, fig = None, labels = [r'True', r'Reconstructed']):
     
+    title_names = [r'x-component', r'y-component', r'z-component']
     ncols = X_t.shape[0]
     
     if fig is None:
@@ -627,6 +628,7 @@ def plot_psd(X_t, u_t, dt,
             ax[id_row].semilogy(f_X_t[:id_f_stop], psd_X_t[:id_f_stop], 
                          color=colors[0], 
                          label=labels[0])
+            
         else:
             ax.semilogy(f_X_t[:id_f_stop], psd_X_t[:id_f_stop], 
                          color=colors[0], 
@@ -647,6 +649,7 @@ def plot_psd(X_t, u_t, dt,
             
             ax[id_row].set_xlabel(r'Frequency')
             ax[id_row].set_ylim(1e-5,1e2)
+            ax[id_row].set_title(title_names[id_row])
         #ax[id_row].set_xlim(0, 0.3)
         else:
             ax.semilogy(f_u_t[:id_f_stop], psd_u_t[:id_f_stop], 

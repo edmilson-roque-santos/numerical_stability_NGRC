@@ -96,6 +96,14 @@ def parametric_Lorenz(params, time_total = max_time_total,
     t_eval = np.arange(0.0, time_total, dt)
     #========================##========================#
     #=======Variables and Initial conditions ========##========================#
+    if filename is not None:
+        folder = 'data/input_data/'
+        out_direc = os.path.join('', folder)
+        
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        output = os.path.join(out_direc, filename)
+    
     if initial_condition is None:
         if random_seed is None:
             rng = default_rng()
