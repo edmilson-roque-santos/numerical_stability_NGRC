@@ -229,7 +229,7 @@ if computing_thetas:
                       reg_param = reg_param, solver = 'cholesky')
     
     theta_cho = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_cho @ R, axis = 1)/LA.norm(y, axis = 1))
-    thetas.add_row(["cholesky",   theta_cho[0], theta_cho[1], theta_cho[2]])
+    thetas.add_row(["cholesky", theta_cho[0], theta_cho[1], theta_cho[2]])
     
     # SVD
     W_out_svd = ridge(s_t_train.T - u_t_train.T, R, 
