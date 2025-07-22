@@ -201,7 +201,7 @@ tls.plot_testing(s_t_test, v_t_test, t_test,
 
 tls.fig_x_coord_reconstr(s_t_test, v_t_test, t_test, dt, scale = 1/0.9056,
                          transient_plot = int(15/(0.9056*dt)), nperseg=int(1/dt)*5,
-                         filename = parameters['exp_name'])
+                         filename = None)#
 
 # Compute comparison wrt to the original vector
 #c_matrix_true = get_true_coeff_Lorenz(params)
