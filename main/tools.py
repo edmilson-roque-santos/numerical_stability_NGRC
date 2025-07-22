@@ -1931,3 +1931,79 @@ def plot_spatial_Lorenz96(X_t, t):
 
     plt.tight_layout()
 
+
+def fig_solvers_traj(res_dict, scale = 1, filename = None):
+    
+    fig, ax = plt.subplots(3, 1, figsize=(5, 5), dpi=300, sharex=True)
+        
+    solvers = list(res_dict.keys())
+    labels = [r'$x$', r'$y$', r'$z$']
+    colors_index = [1, 2, 4]
+    alphas = [0.9, 0.85, 0.8]
+    
+    for id_row in range(3):
+    
+        for id_, solver in enumerate(solvers):
+            s_t_test = res_dict[solver]['s_t_test']
+            v_t_test = res_dict[solver]['v_t_test']
+            t_test = res_dict[solver]['t_test']
+        
+            lgth = np.min([s_t_test.shape[1], v_t_test.shape[1], t_test.shape[0]])
+            
+            if id_ == 0:
+                ax[id_row].plot(t_test[:lgth]/scale, s_t_test[id_row, :lgth], 
+                                '-', label = r'True', 
+                                color = 'silver', alpha = 0.5)
+            
+            ax[id_row].plot(t_test[:lgth]/scale, v_t_test[id_row, :lgth], 
+                           '-', label = fr'{solver}', 
+                           color = list_colors[colors_index[id_]],
+                           alpha = alphas[id_])
+        
+        
+            ax[id_row].set_ylabel(labels[id_row])
+            
+            
+            if (id_ == 2) and (id_row == 0):
+                ax[id_row].legend(loc = 0)
+            
+            
+    ax[id_row].set_xlabel(r'Lyapunov Time')
+        
+    if filename is None:
+        plt.tight_layout()
+        plt.show()
+        
+    if filename is not None:
+        folder = 'Figures'
+        out_direc = os.path.join('', folder)
+        
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        output = os.path.join(out_direc, filename)
+        plt.savefig(output+".pdf", format = 'pdf', bbox_inches='tight')
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
