@@ -39,7 +39,7 @@ ts_sgn = sgn(dt, ttrain, ttest,
              delay_dimension, 
              time_skip,                                  
              trans_t = 100, 
-             normalize = True,
+             normalize = False,
              seed = seed,
              method = 'Euler',
              dt_fine = 0.01)
@@ -147,6 +147,9 @@ solvers = ['SVD', 'cholesky', 'LU']
 #Regularizer parameter
 reg_param = 0
 
+# Compute comparison wrt to the original vector
+c_matrix_true = get_true_coeff_Lorenz(params)
+
 #Create the dictionary indexed by solver
 res_dict = dict()
 
@@ -175,5 +178,6 @@ for solver in solvers:
                         's_t_test': s_t_test,
                         't_test': t_test[:int(40/(0.9056*dt))]}
 
-tls.fig_solvers_traj(res_dict, scale = 1/0.9056, filename = None)
-tls.fig_solvers_diff_traj(res_dict, scale = 1/0.9056, filename = None)
+tls.plot_solvers_traj(res_dict, scale = 1/0.9056, filename = None)
+tls.plot_solvers_diff_traj(res_dict, scale = 1/0.9056, filename = None)
+tls.plot_solvers_Wout(res_dict, filename = None)

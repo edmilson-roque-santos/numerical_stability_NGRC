@@ -1932,7 +1932,7 @@ def plot_spatial_Lorenz96(X_t, t):
     plt.tight_layout()
 
 
-def fig_solvers_traj(res_dict, scale = 1, filename = None):
+def plot_solvers_traj(res_dict, scale = 1, filename = None):
     
     fig, ax = plt.subplots(3, 1, figsize=(5, 5), dpi=300, sharex=True)
         
@@ -2013,7 +2013,7 @@ def diff_traj_solvers(res_dict):
     
     return diff_pairs
     
-def fig_solvers_diff_traj(res_dict, scale = 1, filename = None):
+def plot_solvers_diff_traj(res_dict, scale = 1, filename = None):
     
     fig, ax = plt.subplots(3, 1, figsize=(5, 5), dpi=300, sharex=True)
         
@@ -2023,7 +2023,7 @@ def fig_solvers_diff_traj(res_dict, scale = 1, filename = None):
     
     labels = [r'$x$', r'$y$', r'$z$']
     colors_index = [1, 2, 4]
-    alphas = [0.9, 0.85, 0.8]
+    alphas = [1, 0.95, 0.9]
     
     for id_row in range(3):
     
@@ -2059,14 +2059,51 @@ def fig_solvers_diff_traj(res_dict, scale = 1, filename = None):
         plt.savefig(output+".pdf", format = 'pdf', bbox_inches='tight')
 
 
+def plot_solvers_Wout(res_dict, filename = None):
 
-
-
-
-
-
-
-
+    fig, ax = plt.subplots(3, 1, figsize=(5, 5), dpi=300, sharex=True)
+        
+    solvers = list(res_dict.keys())
+    colors_index = [1, 2, 4]
+    alphas = [1, 0.95, 0.9]
+    
+    diff_pairs = diff_traj_solvers(res_dict)
+    
+    labels = [r'$x$-coord', r'$y$-coord', r'$z$-coord']
+    colors_index = [1, 2, 4]
+    alphas = [1, 0.95, 0.9]
+    
+    for id_row in range(3):
+    
+        for id_, pair in enumerate(diff_pairs):
+            diff_W_out = diff_pairs[pair]['wout']
+            
+            ax[id_row].plot(diff_W_out[id_row, :], 
+                           'o', label = fr'$\|W_{{out}}^{{{pair[0]}}} - W_{{out}}^{{{pair[1]}}}\|$', 
+                           color = list_colors[colors_index[id_]],
+                           alpha = alphas[id_])
+        
+            ax[id_row].set_ylabel(labels[id_row])
+            
+            
+            if (id_ == 2) and (id_row == 0):
+                ax[id_row].legend(loc = 0)
+            
+            
+    ax[id_row].set_xlabel(r'Index of $W_{out}$')
+        
+    if filename is None:
+        plt.tight_layout()
+        plt.show()
+        
+    if filename is not None:
+        folder = 'Figures'
+        out_direc = os.path.join('', folder)
+        
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        output = os.path.join(out_direc, filename)
+        plt.savefig(output+".pdf", format = 'pdf', bbox_inches='tight')
 
 
 
