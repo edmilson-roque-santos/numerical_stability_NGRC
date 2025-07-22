@@ -1983,8 +1983,80 @@ def fig_solvers_traj(res_dict, scale = 1, filename = None):
         output = os.path.join(out_direc, filename)
         plt.savefig(output+".pdf", format = 'pdf', bbox_inches='tight')
     
+def diff_traj_solvers(res_dict):
     
+    # List of solvers
+    solvers = list(res_dict.keys())
+    pair_solvers = itertools.combinations(solvers, 2)
+    
+    diff_pairs = dict()
+    # Run over each pair of solvers and compute difference
+    for pair in pair_solvers:
+        t_test1 = res_dict[pair[0]]['t_test']
+        t_test2 = res_dict[pair[1]]['t_test']
+            
+        # Find the length of the shorter array
+        min_len = min(t_test1.shape[0], t_test2.shape[0])
+        
+        v_t_test1 = res_dict[pair[0]]['v_t_test'][:, :min_len]
+        v_t_test2 = res_dict[pair[1]]['v_t_test'][:, :min_len]
 
+        diff_traj = np.absolute(v_t_test1 - v_t_test2)
+        
+        W_out_1 = res_dict[pair[0]]['W_out']
+        W_out_2 = res_dict[pair[1]]['W_out']
+
+        diff_wout = np.absolute(W_out_1 - W_out_2)
+        diff_pairs[pair] = {'traj': diff_traj,
+                            't_test': t_test1[:min_len],
+                            'wout': diff_wout}    
+    
+    return diff_pairs
+    
+def fig_solvers_diff_traj(res_dict, scale = 1, filename = None):
+    
+    fig, ax = plt.subplots(3, 1, figsize=(5, 5), dpi=300, sharex=True)
+        
+    solvers = list(res_dict.keys())
+    
+    diff_pairs = diff_traj_solvers(res_dict)
+    
+    labels = [r'$x$', r'$y$', r'$z$']
+    colors_index = [1, 2, 4]
+    alphas = [0.9, 0.85, 0.8]
+    
+    for id_row in range(3):
+    
+        for id_, pair in enumerate(diff_pairs):
+            diff_traj = diff_pairs[pair]['traj']
+            t_test = diff_pairs[pair]['t_test']
+            
+            ax[id_row].plot(t_test/scale, diff_traj[id_row, :], 
+                           '-', label = fr'$\Delta_{{{pair[0]},{pair[1]}}}$', 
+                           color = list_colors[colors_index[id_]],
+                           alpha = alphas[id_])
+        
+            ax[id_row].set_ylabel(labels[id_row])
+            
+            
+            if (id_ == 2) and (id_row == 0):
+                ax[id_row].legend(loc = 0)
+            
+            
+    ax[id_row].set_xlabel(r'Lyapunov Time')
+        
+    if filename is None:
+        plt.tight_layout()
+        plt.show()
+        
+    if filename is not None:
+        folder = 'Figures'
+        out_direc = os.path.join('', folder)
+        
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        output = os.path.join(out_direc, filename)
+        plt.savefig(output+".pdf", format = 'pdf', bbox_inches='tight')
 
 
 

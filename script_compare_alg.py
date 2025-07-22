@@ -22,7 +22,7 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.05
+dt = 0.01
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -58,7 +58,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 3
+degree = 2
 parameters['exp_name'] = 'compare_alg'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
@@ -173,6 +173,7 @@ for solver in solvers:
                         'v_t_train': v_t_train,
                         'v_t_test': v_t_test,
                         's_t_test': s_t_test,
-                        't_test': t_test[:int(50/(0.9056*dt))]}
+                        't_test': t_test[:int(40/(0.9056*dt))]}
 
 tls.fig_solvers_traj(res_dict, scale = 1/0.9056, filename = None)
+tls.fig_solvers_diff_traj(res_dict, scale = 1/0.9056, filename = None)
