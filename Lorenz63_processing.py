@@ -26,7 +26,7 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.01
+dt = 0.025
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -34,9 +34,13 @@ time_skip = 1
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
-ttrain = 50
+ttrain = 75
 ttest = 1
 seed = 1
+#Method of numerical integrating the differential equation
+method = 'RK45'
+# Fine sampling of the time series
+dt_fine = 0.001
 #============================##============================##============================#
 #Generate synthetic data
 ts_sgn = sgn(dt, ttrain, ttest, 
@@ -45,11 +49,18 @@ ts_sgn = sgn(dt, ttrain, ttest,
              trans_t = 5, 
              normalize = True,
              seed = seed,
-             method = 'Euler',
-             dt_fine = 0.01)
+             method = method,
+             dt_fine = dt_fine)
 
 folder = 'data/input_data/'
-ts_filename = folder+'Lorenz_ts_Euler_{}_{}_{}.txt'.format(ttrain+ttest, 0.01, seed)
+
+# Filename to save the time series. 
+if method == 'Euler':
+    filename = 'Lorenz_ts_Euler_{}_{}_{}.txt'.format(ttrain+ttest, 0.01, seed)
+if method == 'RK45':
+    filename = 'Lorenz_ts_RK45_{}_{}_{}.txt'.format(ttrain+ttest, dt_fine, seed)
+
+ts_filename = folder+filename
 ts_sgn.generate_signal(parametric_Lorenz, 
                        np.array([10.0, 8.0/3.0, 28]),
                        ts_filename,
@@ -158,7 +169,7 @@ def plot_MI(X_t, index, id_xlim = 250):
 
 
 #Plot the Mutual information wrt time lag 
-plot_MI_minimum = False
+plot_MI_minimum = True
 if plot_MI_minimum:
     index = [0, 1, 2]
     plot_MI(X_t_train[:, index], index = index, id_xlim = 50)
