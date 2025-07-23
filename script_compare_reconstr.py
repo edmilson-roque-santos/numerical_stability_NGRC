@@ -221,6 +221,8 @@ computing_thetas = True
 
 if computing_thetas:    
     thetas = PrettyTable(['Method', 'theta_x', 'theta_y', 'theta_z'])
+    cos_thetas = PrettyTable(['Method', 'ctheta_x', 'ctheta_y', 'ctheta_z'])
+    tan_thetas = PrettyTable(['Method', 'ttheta_x', 'ttheta_y', 'ttheta_z'])
     
     y = s_t_train.T - u_t_train.T
     
@@ -230,6 +232,8 @@ if computing_thetas:
     
     theta_cho = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_cho @ R, axis = 1)/LA.norm(y, axis = 1))
     thetas.add_row(["cholesky", theta_cho[0], theta_cho[1], theta_cho[2]])
+    cos_thetas.add_row(["cholesky", np.cos(theta_cho[0]), np.cos(theta_cho[1]), np.cos(theta_cho[2])])
+    tan_thetas.add_row(["cholesky", np.tan(theta_cho[0]), np.tan(theta_cho[1]), np.tan(theta_cho[2])])
     
     # SVD
     W_out_svd = ridge(s_t_train.T - u_t_train.T, R, 
@@ -237,12 +241,21 @@ if computing_thetas:
 
     theta_svd = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_svd @ R, axis = 1)/LA.norm(y, axis = 1))
     thetas.add_row(["svd",   theta_svd[0], theta_svd[1], theta_svd[2]])
+    cos_thetas.add_row(["svd", np.cos(theta_svd[0]), np.cos(theta_svd[1]), np.cos(theta_svd[2])])
+    tan_thetas.add_row(["svd", np.tan(theta_svd[0]), np.tan(theta_svd[1]), np.tan(theta_svd[2])])
+    
+    
     # LU
     W_out_lu = ridge(s_t_train.T - u_t_train.T, R, 
                       reg_param = reg_param, solver = 'LU')
 
     theta_lu = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_lu @ R, axis = 1)/LA.norm(y, axis = 1))
     thetas.add_row(["lu",   theta_lu[0], theta_lu[1], theta_lu[2]])
+    cos_thetas.add_row(["lu", np.cos(theta_lu[0]), np.cos(theta_lu[1]), np.cos(theta_lu[2])])
+    tan_thetas.add_row(["lu", np.tan(theta_lu[0]), np.tan(theta_lu[1]), np.tan(theta_lu[2])])
+    
     
     print(thetas)
+    print(cos_thetas)
+    print(tan_thetas)
 

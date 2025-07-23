@@ -22,24 +22,24 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.01
+dt = 0.1
 #Delayed coordinates and time skip
-delay_dimension = 1
+delay_dimension = 2
 #Time skip between time points
 time_skip = 1
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
-ttrain = 5
+ttrain = 50
 ttest = 100
-seed = 1
+seed = 4
 #============================##============================##============================#
 #Generate synthetic data
 ts_sgn = sgn(dt, ttrain, ttest, 
              delay_dimension, 
              time_skip,                                  
              trans_t = 100, 
-             normalize = False,
+             normalize = True,
              seed = seed,
              method = 'Euler',
              dt_fine = 0.01)
@@ -58,7 +58,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 2
+degree = 6
 parameters['exp_name'] = 'compare_alg'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
@@ -145,10 +145,7 @@ cond_number = s.max()/s.min()
 solvers = ['SVD', 'cholesky', 'LU']
 
 #Regularizer parameter
-reg_param = 0
-
-# Compute comparison wrt to the original vector
-c_matrix_true = get_true_coeff_Lorenz(params)
+reg_param = 1e-10
 
 #Create the dictionary indexed by solver
 res_dict = dict()
@@ -176,7 +173,7 @@ for solver in solvers:
                         'v_t_train': v_t_train,
                         'v_t_test': v_t_test,
                         's_t_test': s_t_test,
-                        't_test': t_test[:int(40/(0.9056*dt))]}
+                        't_test': t_test[:int(100/(0.9056*dt))]}
 
 tls.plot_solvers_traj(res_dict, scale = 1/0.9056, filename = None)
 tls.plot_solvers_diff_traj(res_dict, scale = 1/0.9056, filename = None)
