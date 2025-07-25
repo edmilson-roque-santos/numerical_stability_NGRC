@@ -39,7 +39,7 @@ ts_sgn = sgn(dt, ttrain, ttest,
              delay_dimension, 
              time_skip,                                  
              trans_t = 100, 
-             normalize = False,
+             normalize = True,
              seed = seed,
              method = 'Euler',
              dt_fine = 0.01)
@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 parameters = dict()
 
 degree = 2
-parameters['exp_name'] = 'computing thetas '#'Euler_plot_fig1'
+parameters['exp_name'] = 'Euler_plot_fig1'#'computing thetas '#
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -258,4 +258,8 @@ if computing_thetas:
     print(thetas)
     print(cos_thetas)
     print(tan_thetas)
+
+    LA.norm(W_out_svd - W_out_cho, axis = 1)
+    LA.norm(W_out_svd - W_out_lu, axis = 1)
+    LA.norm(W_out_cho - W_out_lu, axis = 1)
 

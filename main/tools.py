@@ -648,7 +648,7 @@ def plot_psd(X_t, u_t, dt,
                 ax[id_row].set_ylabel(r"$PSD$")
             
             ax[id_row].set_xlabel(r'Frequency')
-            ax[id_row].set_ylim(1e-5,1e2)
+            ax[id_row].set_ylim(1e-7,2e-1)
             ax[id_row].set_title(title_names[id_row])
         #ax[id_row].set_xlim(0, 0.3)
         else:
