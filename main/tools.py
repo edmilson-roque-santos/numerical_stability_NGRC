@@ -2031,7 +2031,7 @@ def plot_solvers_diff_traj(res_dict, scale = 1, filename = None):
             diff_traj = diff_pairs[pair]['traj']
             t_test = diff_pairs[pair]['t_test']
             
-            ax[id_row].plot(t_test/scale, diff_traj[id_row, :], 
+            ax[id_row].semilogy(t_test/scale, diff_traj[id_row, :], 
                            '-', label = fr'$\Delta_{{{pair[0]},{pair[1]}}}$', 
                            color = list_colors[colors_index[id_]],
                            alpha = alphas[id_])

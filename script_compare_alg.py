@@ -22,9 +22,9 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.1
+dt = 0.05
 #Delayed coordinates and time skip
-delay_dimension = 2
+delay_dimension = 1
 #Time skip between time points
 time_skip = 1
 #Warm up of the NGRC
@@ -32,7 +32,7 @@ warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 50
 ttest = 100
-seed = 4
+seed = 1
 #============================##============================##============================#
 #Generate synthetic data
 ts_sgn = sgn(dt, ttrain, ttest, 
@@ -58,7 +58,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 6
+degree = 5
 parameters['exp_name'] = 'compare_alg'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
@@ -145,10 +145,16 @@ cond_number = s.max()/s.min()
 solvers = ['SVD', 'cholesky', 'LU']
 
 #Regularizer parameter
-reg_param = 1e-10
+reg_param = 0
 
 #Create the dictionary indexed by solver
 res_dict = dict()
+
+# Compute theta - closeness of fit
+computing_thetas = True
+thetas = PrettyTable(['Method', 'theta_x', 'theta_y', 'theta_z'])
+cos_thetas = PrettyTable(['Method', 'ctheta_x', 'ctheta_y', 'ctheta_z'])
+tan_thetas = PrettyTable(['Method', 'ttheta_x', 'ttheta_y', 'ttheta_z'])
 
 for solver in solvers:
     
@@ -162,6 +168,14 @@ for solver in solvers:
     
     v_t_train = u_t_train.T + W_out @ R
     
+    
+    if computing_thetas:  
+        y = s_t_train.T - u_t_train.T
+        theta = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out @ R, axis = 1)/LA.norm(y, axis = 1))
+        thetas.add_row([solver, theta[0], theta[1], theta[2]])
+        cos_thetas.add_row([solver, np.cos(theta[0]), np.cos(theta[1]), np.cos(theta[2])])
+        tan_thetas.add_row([solver, np.tan(theta[0]), np.tan(theta[1]), np.tan(theta[2])])
+    
     #============================##============================##============================#
     ## Testing phase
     hist = X_t_train[-(warmup + 1):, :].copy()
@@ -173,8 +187,15 @@ for solver in solvers:
                         'v_t_train': v_t_train,
                         'v_t_test': v_t_test,
                         's_t_test': s_t_test,
-                        't_test': t_test[:int(100/(0.9056*dt))]}
+                        't_test': t_test[:int(50/(0.9056*dt))]}
 
 tls.plot_solvers_traj(res_dict, scale = 1/0.9056, filename = None)
 tls.plot_solvers_diff_traj(res_dict, scale = 1/0.9056, filename = None)
 tls.plot_solvers_Wout(res_dict, filename = None)
+
+diff_pairs = tls.diff_traj_solvers(res_dict)
+
+if computing_thetas:  
+    print(thetas)
+    print(cos_thetas)
+    print(tan_thetas)
