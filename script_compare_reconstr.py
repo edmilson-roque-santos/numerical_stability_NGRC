@@ -259,7 +259,7 @@ if computing_thetas:
     print(cos_thetas)
     print(tan_thetas)
 
-    LA.norm(W_out_svd - W_out_cho, axis = 1)
-    LA.norm(W_out_svd - W_out_lu, axis = 1)
-    LA.norm(W_out_cho - W_out_lu, axis = 1)
-
+    diff1 = LA.norm(W_out_svd - W_out_cho, axis = 1) 
+    diff2 = LA.norm(W_out_svd - W_out_lu, axis = 1)
+    diff3 = LA.norm(W_out_cho - W_out_lu, axis = 1)
+    np.max([diff1, diff2, diff3])
