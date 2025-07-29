@@ -1248,7 +1248,7 @@ class simulation():
         
         #Readout matrix calculation
         # Cholesky
-        W_out_cho = ridge(s_t_train.T - u_t_train.T, R, 
+        W_out_cho = ridge(y, R, 
                       reg_param = reg_param, solver = 'cholesky')
     
         theta_cho = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_cho @ R, axis = 1)/LA.norm(y, axis = 1))
@@ -1257,7 +1257,7 @@ class simulation():
         exp_dict['theta_cho'] = theta_cho
         
         # SVD
-        W_out_svd = ridge(s_t_train.T - u_t_train.T, R, 
+        W_out_svd = ridge(y, R, 
                           reg_param = reg_param, solver = 'SVD')
 
         theta_svd = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_svd @ R, axis = 1)/LA.norm(y, axis = 1))
@@ -1266,7 +1266,7 @@ class simulation():
         exp_dict['theta_svd'] = theta_svd
         
         # LU
-        W_out_lu = ridge(s_t_train.T - u_t_train.T, R, 
+        W_out_lu = ridge(y, R, 
                           reg_param = reg_param, solver = 'LU')
 
         theta_lu = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_lu @ R, axis = 1)/LA.norm(y, axis = 1))
