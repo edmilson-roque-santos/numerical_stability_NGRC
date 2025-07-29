@@ -24,7 +24,7 @@ from main.base_polynomial import poly_library as polb
 #Time step - sampling
 dt = 0.01
 #Delayed coordinates and time skip
-delay_dimension = 1
+delay_dimension = 2
 #Time skip between time points
 time_skip = 1
 #Warm up of the NGRC
@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 parameters = dict()
 
 degree = 2
-parameters['exp_name'] = 'Euler_plot_fig1'#'computing thetas '#
+parameters['exp_name'] = 'computing thetas '#'Euler_plot_fig1'#
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
