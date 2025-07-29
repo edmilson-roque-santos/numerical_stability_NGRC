@@ -24,7 +24,7 @@ from main.base_polynomial import poly_library as polb
 #Time step - sampling
 dt = 0.01
 #Delayed coordinates and time skip
-delay_dimension = 2
+delay_dimension = 1
 #Time skip between time points
 time_skip = 1
 #Warm up of the NGRC
@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 parameters = dict()
 
 degree = 2
-parameters['exp_name'] = 'computing thetas '#'Euler_plot_fig1'#
+parameters['exp_name'] = 'Euler_plot_fig1'#'computing thetas '#
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -154,7 +154,7 @@ if not parameters['use_qr']:
     if params['normalize_cols']:
         W_out = W_out/params['norm_column']
     
-    v_t_train = u_t_train.T + W_out @ R
+    v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
  
 if parameters['use_qr']:
    
@@ -202,11 +202,11 @@ if v_t_test.shape[0] == 3:
     tls.plot_2d_all_combinations(s_t_test, v_t_test)
     filename = params['exp_name']
     
-    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = None) #filename+'_top_stats'
+    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = filename+'_top_stats') #filename+'_top_stats'
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(25/(0.9056*dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 1/0.9056,
-                    transient_plot = int(15/(0.9056*dt)), filename = None) #filename+'_compare'
+                    transient_plot = int(15/(0.9056*dt)), filename = filename+'_compare') #filename+'_compare'
     
 # Compute comparison wrt to the original vector
 c_matrix_true = get_true_coeff_Lorenz(params)
