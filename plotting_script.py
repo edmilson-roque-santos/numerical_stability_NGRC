@@ -470,7 +470,7 @@ def fig_training_features():
     Varying different regularizer parameters.
     
     '''    
-    reg_params = np.array([0, 1e-15, 1e-13, 1e-12, 1e-10, 1e-8, 1e-6, 1e-4, 1e-2])
+    reg_params = np.array([1e-15, 1e-13, 1e-12, 1e-10, 1e-8, 1e-6, 1e-4, 1e-2])
     
     experiment = dict()
     
@@ -512,7 +512,7 @@ def fig_training_features():
                                      x_axis = reg_params,
                                      ax = None,
                                      plot_dict = None,
-                                     filename = None)
+                                     filename = 'training_features_k_2')
     
     
     return res_dicts

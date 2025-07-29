@@ -1731,19 +1731,64 @@ def fig_x_coord_time_skip(res_dict,
         plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
 
 
+def ax_stats(array, x_axis, plot_dict, ax, positions):
+    
+    lower, median, upper  = np.array([np.quantile(array, 0.25, axis = 1), 
+                                      np.quantile(array, 0.5, axis = 1), 
+                                      np.quantile(array, 0.75, axis = 1)])
+
+    ax.plot(positions, 
+            median,
+            '-o',
+            label = plot_dict['label'],
+            color = plot_dict['color'],
+            linewidth=1.0,
+            alpha = plot_dict['alpha'],
+            markersize=4)
+
+
+    if plot_dict['error']:
+        error = np.zeros((2, x_axis.shape[0]))
+        error[0, :] = lower#[lower >= 0]
+        error[1, :] = upper#[upper >= 0]
+    
+        lolims = np.log10(median) - np.log10(lower) <= 0  # boolean mask
+        uplims = np.zeros_like(lolims, dtype=bool)
+    
+        ax.errorbar(positions, 
+                       median,
+                       yerr = error,
+                       lolims=lolims,
+                       uplims=uplims,
+                       color = plot_dict['color'],
+                       fmt = list_markers[0],
+                       capsize=3,
+                       ms = 8)
+
+    ax.set_xlabel(r'{}'.format(plot_dict['x_label']))
+    ax.set_xscale(plot_dict['x_scale'])        
+    ax.set_yscale(plot_dict['y_scale'])
+    ax.set_ylabel(r'{}'.format(plot_dict['y_label']))
+
+    labels = np.array([fr'$10^{{{int(np.log10(val))}}}$' for val in x_axis])
+    ax.set_xticks(positions, 
+                  labels = labels) 
+    if plot_dict['legend']:
+        ax.legend(loc = 8)
+
 def fig_training_features_vs_reg(res_dict, 
                                  x_axis,
                                  ax = None,
                                  plot_dict = None,
                                  filename = None):
     
-    positions = np.linspace(1, x_axis.shape[0] + 5, x_axis.shape[0])
+    positions = np.arange(1, x_axis.shape[0] + 1, 1, dtype = int)
     
     if plot_dict is None:
         plot_dict = dict()
         
     if ax is None:
-        fig, ax = plt.subplots(2, 1, sharex= True, figsize = (4, 8), dpi = 300)
+        fig, ax = plt.subplots(2, 1, sharex= True, figsize = (5, 6), dpi = 300)
         
     #Plotting the difference between solution vectors
     plot_dict['y_label'] = r'$\Delta$'
@@ -1761,60 +1806,59 @@ def fig_training_features_vs_reg(res_dict,
                               ax = ax[0],
                               plot_panel = True)
     
+    #Plotting the condition number
+    key_metric = 'sigvals'
+    plot_dict['y_label'] = r'$\kappa_{\beta}(\Psi)$'
+    plot_dict['x_scale'] = 'linear'
+    plot_dict['y_scale'] = 'log'
+    plot_dict['y_lim'] = [1e4, 1e18]
+    plot_dict['x_label'] = ''
+    plot_dict['legend'] = False
+    plot_dict['error'] = False
+    plot_dict['label'] = ''
+    plot_dict['color'] = list_colors[3]
+    plot_dict['alpha'] = 0.7 
+    
+    ax2 = ax[1].twinx()  # instantiate a second Axes that shares the same x-axis
+    array = res_dict[key_metric]
+    ax_stats(array, x_axis, plot_dict, ax2, positions)
+    ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
     
     #Plotting the maximum over thetas
     plot_dict['y_label'] = r'$\theta_{\max}$'
     plot_dict['x_scale'] = 'linear'
     plot_dict['y_scale'] = 'log'
     plot_dict['y_lim'] = [1e4, 1e18]
-    #plot_dict['x_label'] = ''
+    plot_dict['x_label'] = r'$\beta$'
     plot_dict['legend'] = True
+    plot_dict['error'] = True
+    plot_dict['alpha'] = 1.0 
     
     # Plot the Cholesky maximum thetas
     key_metric = 'theta_cho'
     plot_dict['color'] = list_colors[1]
     plot_dict['label'] = r'CHO'
     
-    ax[1] = plot_metric_box_plot(x_axis, 
-                              res_dict[key_metric], 
-                              plot_dict, 
-                              ax = ax[1],
-                              plot_panel = True)
-    '''
+    array = res_dict[key_metric]
+    ax_stats(array, x_axis, plot_dict, ax[1], positions)
+    
     # Plot the SVD maximum thetas
     key_metric = 'theta_svd'
     plot_dict['color'] = list_colors[2]
     plot_dict['label'] = r'SVD'
     
-    ax[1] = plot_metric_box_plot(x_axis, 
-                              res_dict[key_metric], 
-                              plot_dict, 
-                              ax = ax[1],
-                              plot_panel = True)
+    array = res_dict[key_metric]
+    ax_stats(array, x_axis, plot_dict, ax[1], positions)
+    
     
     # Plot the LU maximum thetas
     key_metric = 'theta_lu'
     plot_dict['color'] = list_colors[4]
     plot_dict['label'] = r'LU'
     
-    ax[1] = plot_metric_box_plot(x_axis, 
-                              res_dict[key_metric], 
-                              plot_dict, 
-                              ax = ax[1],
-                              plot_panel = True)
+    array = res_dict[key_metric]
+    ax_stats(array, x_axis, plot_dict, ax[1], positions)
     
-    '''
-    #Plotting the condition number
-    key_metric = 'sigvals'
-    plot_dict['y_label'] = r'$\kappa_{\beta}(\hat{\Psi})$'
-    plot_dict['x_scale'] = 'linear'
-    plot_dict['y_scale'] = 'log'
-    plot_dict['y_lim'] = [1e4, 1e18]
-    plot_dict['x_label'] = ''
-    plot_dict['legend'] = False
-    plot_dict['label'] = ''
-            
-  
     if filename == None:
         return ax
     else:

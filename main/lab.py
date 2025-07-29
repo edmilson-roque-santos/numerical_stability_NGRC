@@ -423,7 +423,7 @@ class lab(sim):
         
         #Mask out results that are nan's 
         mask = np.isnan(optf_array)
-        optf_array[mask] = -1
+        optf_array[mask] = np.pi/2
                 
         return optf_array    
     
