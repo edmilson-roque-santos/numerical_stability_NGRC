@@ -1322,6 +1322,9 @@ class simulation():
         if self.experiment['script'] == 'ngrc_euler_method_index':
             exp_dict = self.ngrc_euler_method_index(params)
             
+        if self.experiment['script'] == 'ngrc_euler_method_training_features':
+            exp_dict = self.ngrc_euler_method_training_features(params)
+            
         return exp_dict
         
 #============================##============================##============================##============================#     
