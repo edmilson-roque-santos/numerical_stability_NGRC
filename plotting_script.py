@@ -455,7 +455,67 @@ def fig_x_coord_reconstr_time_lags():
                               plot_dict = None,
                               filename = experiment['exp_name'] 
                               )
+# %%   
+def fig_training_features():
+    #This script test the following experiment:
+    '''
+    Consider 50 different initial conditions. 
+    Fix the number of data points to Ntrain = 5000 
+    Ntest = 10000
+    and the step size $\Delta t = 0.01$.
+    Fix the number of delay dimensions to k = 2.
+    Calculate the closeness of fit and difference between solution vectors
+    over the different algorithms: Cholesky, SVD and LU decomposition.
     
+    Varying different regularizer parameters.
+    
+    '''    
+    reg_params = np.array([0, 1e-15, 1e-13, 1e-12, 1e-10, 1e-8, 1e-6, 1e-4, 1e-2])
+    
+    experiment = dict()
+    
+    vary_params = dict()
+    
+    vary_params['reg_params'] = reg_params.copy()
+    
+    experiment['exp_name'] = 'training_features_reg_0_1'
+    experiment['network_name'] = 'Lorenz_63'
+    experiment['dependencies'] = False
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_euler_method_training_features'
+    # Specify if we should perform testing
+    experiment['testing'] = False
+    
+    fixed_params = {'delay_dimension': 2,
+                    'time_skip': 1,
+                    'ttrain': 50,
+                    'ttest': 100,
+                    'Nseeds': 50,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False
+        }
+    
+    L = lab(experiment, vary_params, fixed_params)
+    exps_dict = L.exp_dict
+    
+    list_metrics = ['sigvals',
+                    'diff_sol_vec',
+                    'theta_cho',
+                    'theta_svd',
+                    'theta_lu']
+    
+    res_dicts = L.plot_fig_training_features_metrics_reg(list_metrics, 
+                                                         x_keys = 'reg_params')
+    
+    
+    tls.fig_training_features_vs_reg(res_dicts, 
+                                     x_axis = reg_params,
+                                     ax = None,
+                                     plot_dict = None,
+                                     filename = None)
+    
+    
+    return res_dicts
     
 # %%
 def fig_cond_num_chebyshev_poly_deg():

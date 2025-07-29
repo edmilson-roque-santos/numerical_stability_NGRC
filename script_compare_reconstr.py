@@ -24,7 +24,7 @@ from main.base_polynomial import poly_library as polb
 #Time step - sampling
 dt = 0.01
 #Delayed coordinates and time skip
-delay_dimension = 1
+delay_dimension = 2
 #Time skip between time points
 time_skip = 1
 #Warm up of the NGRC

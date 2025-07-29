@@ -381,10 +381,64 @@ class lab(sim):
                 
         return res_dict     
     
+    def results_metrics_training_features_reg(self, key_metric, 
+                                              x_keys = 'reg_params'):
         
+        x_axis = self.vary_params[x_keys]
+        N_seeds = self.parameters['Nseeds']
+        
+        iterable = list(self.exp_dict.keys())
+
+        optf_array = np.zeros((x_axis.shape[0], N_seeds))
+        for id_, comb in enumerate(iterable):
+            
+            for id_seed in range(N_seeds):
+                # Compute the condition number
+                if key_metric == 'sigvals':
+                    # Check if the regularizer parameter is zero
+                    if x_axis[id_] == 0.0:
+                        #If the reg parameter is zero, computes the condition number
+                        sigvals = self.exp_dict[comb][id_seed][key_metric]
+                        optf_array[id_, id_seed] = sigvals.max()/sigvals.min()
+                    
+                    else:
+                        #Otherwise, it computes the regularized condition number
+                        sigvals = self.exp_dict[comb][id_seed][key_metric]
+                        optf_array[id_, id_seed] = sigvals.max()/np.sqrt(x_axis[id_])
+                   
+                # Compute the closeness of fit for each algorithm individually    
+                if (key_metric == 'theta_cho') | (key_metric == 'theta_svd') | (key_metric == 'theta_lu'):
+                    
+                    optf_array[id_, id_seed] = np.max(self.exp_dict[comb][id_seed][key_metric])
+                    
+                    
+                # Compute the difference between the solution vectors
+                
+                if key_metric == 'diff_sol_vec':
+                    diff_1 = self.exp_dict[comb][id_seed]['svd_cho']
+                    diff_2 = self.exp_dict[comb][id_seed]['svd_lu']
+                    diff_3 = self.exp_dict[comb][id_seed]['cho_lu']
+                    optf_array[id_, id_seed] = np.max([diff_1, diff_2, diff_3]) 
+        
+        
+        #Mask out results that are nan's 
+        mask = np.isnan(optf_array)
+        optf_array[mask] = -1
+                
+        return optf_array    
     
     
-    
+    def plot_fig_training_features_metrics_reg(self, list_metrics, 
+                                                    x_keys = 'reg_params'):
+        
+        res_dict = dict()
+        for id_list, key_metric in enumerate(list_metrics):    
+            
+            res_dict[key_metric] = self.results_metrics_training_features_reg(key_metric,
+                                                                              x_keys)
+        
+        return res_dict
+        
     
     
     

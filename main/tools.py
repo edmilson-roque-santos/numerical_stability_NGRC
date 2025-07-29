@@ -857,7 +857,7 @@ def plot_metric_box_plot(x_axis,
     ax.set_xscale(plot_dict['x_scale'])        
     ax.set_yscale(plot_dict['y_scale'])
     #ax.set_xlim(plot_dict['x_lim'][0], plot_dict['x_lim'][1])
-    ax.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+    #ax.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
     
     
     labels = np.concatenate(([r'$0$'], [fr'$10^{{{int(np.log10(val))}}}$' for val in x_axis[1:]]))
@@ -1729,7 +1729,99 @@ def fig_x_coord_time_skip(res_dict,
         filename = os.path.join(out_direc, filename)
             
         plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+
+
+def fig_training_features_vs_reg(res_dict, 
+                                 x_axis,
+                                 ax = None,
+                                 plot_dict = None,
+                                 filename = None):
     
+    positions = np.linspace(1, x_axis.shape[0] + 5, x_axis.shape[0])
+    
+    if plot_dict is None:
+        plot_dict = dict()
+        
+    if ax is None:
+        fig, ax = plt.subplots(2, 1, sharex= True, figsize = (4, 8), dpi = 300)
+        
+    #Plotting the difference between solution vectors
+    plot_dict['y_label'] = r'$\Delta$'
+    plot_dict['x_scale'] = 'linear'
+    plot_dict['y_scale'] = 'log'
+    plot_dict['y_lim'] = [1e4, 1e18]
+    plot_dict['x_label'] = ''
+    plot_dict['legend'] = False
+    plot_dict['label'] = ''
+    
+    key_metric = 'diff_sol_vec'
+    ax[0] = plot_metric_box_plot(x_axis, 
+                              res_dict[key_metric], 
+                              plot_dict, 
+                              ax = ax[0],
+                              plot_panel = True)
+    
+    
+    #Plotting the maximum over thetas
+    plot_dict['y_label'] = r'$\theta_{\max}$'
+    plot_dict['x_scale'] = 'linear'
+    plot_dict['y_scale'] = 'log'
+    plot_dict['y_lim'] = [1e4, 1e18]
+    #plot_dict['x_label'] = ''
+    plot_dict['legend'] = True
+    
+    # Plot the Cholesky maximum thetas
+    key_metric = 'theta_cho'
+    plot_dict['color'] = list_colors[1]
+    plot_dict['label'] = r'CHO'
+    
+    ax[1] = plot_metric_box_plot(x_axis, 
+                              res_dict[key_metric], 
+                              plot_dict, 
+                              ax = ax[1],
+                              plot_panel = True)
+    '''
+    # Plot the SVD maximum thetas
+    key_metric = 'theta_svd'
+    plot_dict['color'] = list_colors[2]
+    plot_dict['label'] = r'SVD'
+    
+    ax[1] = plot_metric_box_plot(x_axis, 
+                              res_dict[key_metric], 
+                              plot_dict, 
+                              ax = ax[1],
+                              plot_panel = True)
+    
+    # Plot the LU maximum thetas
+    key_metric = 'theta_lu'
+    plot_dict['color'] = list_colors[4]
+    plot_dict['label'] = r'LU'
+    
+    ax[1] = plot_metric_box_plot(x_axis, 
+                              res_dict[key_metric], 
+                              plot_dict, 
+                              ax = ax[1],
+                              plot_panel = True)
+    
+    '''
+    #Plotting the condition number
+    key_metric = 'sigvals'
+    plot_dict['y_label'] = r'$\kappa_{\beta}(\hat{\Psi})$'
+    plot_dict['x_scale'] = 'linear'
+    plot_dict['y_scale'] = 'log'
+    plot_dict['y_lim'] = [1e4, 1e18]
+    plot_dict['x_label'] = ''
+    plot_dict['legend'] = False
+    plot_dict['label'] = ''
+            
+  
+    if filename == None:
+        return ax
+    else:
+        plt.tight_layout()
+        plt.savefig(filename+".pdf", format = 'pdf')
+    
+    return 
     
 def num_poly_basis(delays, max_degree, dimension):
     
