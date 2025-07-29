@@ -1822,6 +1822,7 @@ def fig_training_features_vs_reg(res_dict,
     ax2 = ax[1].twinx()  # instantiate a second Axes that shares the same x-axis
     array = res_dict[key_metric]
     ax_stats(array, x_axis, plot_dict, ax2, positions)
+    ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
     ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
     
     #Plotting the maximum over thetas

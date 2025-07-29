@@ -512,7 +512,7 @@ def fig_training_features():
                                      x_axis = reg_params,
                                      ax = None,
                                      plot_dict = None,
-                                     filename = 'training_features_k_2')
+                                     filename = 'Figures/training_features_k_2')
     
     
     return res_dicts
