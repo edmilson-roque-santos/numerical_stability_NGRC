@@ -166,7 +166,7 @@ for solver in solvers:
     if params['normalize_cols']:
         W_out = W_out/params['norm_column']
     
-    v_t_train = u_t_train.T + W_out @ R
+    v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
     
     
     if computing_thetas:  

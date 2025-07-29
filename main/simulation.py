@@ -385,7 +385,7 @@ class simulation():
             M = s_t_train.shape[0]
             W_out = W_out/np.sqrt(M)
 
-        v_t_train = u_t_train.T + W_out @ R
+        v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
         #============================##============================##============================#
         ## Testing phase
         hist = X_t_train[-(warmup + 1):, :].copy()
@@ -588,7 +588,7 @@ class simulation():
         if reconstr_params['normalize_cols']:
             W_out = W_out/reconstr_params['norm_column']
 
-        v_t_train = u_t_train.T + W_out @ R
+        v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
         
         # Dictionary associated with one specific experiment
         exp_dict = dict()
@@ -811,7 +811,7 @@ class simulation():
         if reconstr_params['normalize_cols']:
             W_out = W_out/reconstr_params['norm_column']
 
-        v_t_train = u_t_train.T + W_out @ R
+        v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
         
         # Dictionary associated with one specific experiment
         exp_dict = dict()
@@ -1024,7 +1024,7 @@ class simulation():
         if reconstr_params['normalize_cols']:
             W_out = W_out/reconstr_params['norm_column']
 
-        v_t_train = u_t_train.T + W_out @ R
+        v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
         
         # Dictionary associated with one specific experiment
         exp_dict = dict()
@@ -1106,6 +1106,189 @@ class simulation():
             exp_dict['script_params'] = params
                 
         return exp_dict
+#%%
+    def ngrc_euler_method_training_features(self, params):
+        '''
+        To train and test performance of a NGRC for the given parameters.
+        It creates dynamic time series generation using Euler method.
+        It computes the closeness of fit and difference between
+        different methods during training.
+        
+        Parameters
+        ----------
+        params : dict
+            Parameters.
+
+        Returns
+        -------
+        exp_dict : dictionary
+            W_out : numpy array
+                Readout matrix 
+            v_t_train : numpy array 
+                Training NGRC trajectory for plotting training.
+            is_bounded : boolean
+                Check if the reconstructed dynamics is bounded.
+            s_t_test : numpy array
+                True trajectory within testing phase.
+            v_out_drive : numpy array
+                Reservoir output within testing phase.
+            t_train : numpy array
+                Time span evaluated within training phase.
+            t_test : numpy array
+                Time span evaluated within testing phase.
+            sigvals : numpy array 
+                Singular values of the library matrix evaluated on the training trajectory.
+                
+            results with different measures during training and testing - below {} corresponds to train,test:
+              
+            NRMSE_{} : normalized root mean square error
+            VPT_{} : valid prediction time
+            Loss_{} : loss
+            abs_psd_train_{} : Kullback Leibler divergence between the power spectrum density
+            zmax_{} : computing distance between the z-max map.
+            error_wrt_true : computes the difference between W_out and true coefficient.
+            
+        '''
+        #Time step - sampling
+        dt = params['dt']
+        dt_fine = params['dt_fine']
+        #Delayed coordinates and time skip
+        delay_dimension = params['delay_dimension']
+        #Time skip between time points
+        time_skip = params['time_skip']
+        #Warm up of the NGRC
+        warmup = (params['delay_dimension'] - 1)*params['time_skip']
+        #Training and testing data
+        ttrain = params['ttrain']
+        ttest = params['ttest']
+        #Random seed identifier
+        seed = params['random_seed']
+        #============================##============================##============================#
+        #Generate synthetic data
+        ts_sgn = sgn(dt, ttrain, ttest, 
+                     delay_dimension, 
+                     time_skip,                                  
+                     trans_t = 100, 
+                     normalize = params['normalize_ts'],
+                     seed = seed,
+                     method = 'Euler',
+                     dt_fine = params['dt_fine'])
+        
+        folder = 'data/input_data/'
+        ts_filename = folder+'Lorenz_ts_Euler_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, dt_fine, seed)
+        ts_sgn.generate_signal(parametric_Lorenz, 
+                               np.array([10.0, 8.0/3.0, 28]),
+                               ts_filename,
+                               subsampling=True)
+
+        X_t_train, X_t_test = ts_sgn.X_t_train, ts_sgn.X_t_test
+        u_t_train, s_t_train = ts_sgn.u_t_train, ts_sgn.s_t_train
+        t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
+        #============================##============================##============================#
+        ############# Construct the parameters dictionary ##############
+        reconstr_params = dict()
+
+        reconstr_params['exp_name'] = params['exp_name']
+        reconstr_params['network_name'] = params['network_name']
+        reconstr_params['max_deg_monomials'] = params['max_deg_monomials']
+        
+        reconstr_params['use_canonical'] = params['use_canonical']
+        reconstr_params['use_orthonormal'] = params['use_orthonormal']
+        reconstr_params['normalize_cols'] = params['normalize_cols']
+        reconstr_params['single_density'] = False
+        reconstr_params['use_chebyshev'] = params['use_chebyshev']
+
+        reconstr_params['lower_bound'] = np.min(X_t_train)
+        reconstr_params['upper_bound'] = np.max(X_t_train)
+
+        reconstr_params['X_time_series_data'] =  X_t_train
+        reconstr_params['length_of_time_series'] = X_t_train.shape[0]
+        reconstr_params['delay_dimension'] = delay_dimension
+        reconstr_params['time_skip'] = time_skip
+        reconstr_params['number_of_vertices'] = delay_dimension*X_t_train.shape[1]
+
+        if params['use_orthonormal']:
+            out_dir_ortho_folder = 'orth_data/orth_{}_{}_{}_{}_{}_{}_{}_{}.txt'.format(reconstr_params['exp_name'],
+                                                                            reconstr_params['random_seed'],
+                                                                            reconstr_params['max_deg_monomials'],
+                                                                            dt,
+                                                                            delay_dimension,
+                                                                            time_skip,
+                                                                            ttrain,
+                                                                            ttest)
+            
+            output_orthnormfunc_filename = out_dir_ortho_folder
+
+            if not os.path.isfile(output_orthnormfunc_filename):
+                reconstr_params['orthnorm_func_filename'] = output_orthnormfunc_filename
+                reconstr_params['orthnormfunc'] = pre_set.create_orthnormfunc_kde(reconstr_params, 
+                                                                         save_orthnormfunc = True)
+            if os.path.isfile(output_orthnormfunc_filename):
+                reconstr_params['orthnorm_func_filename'] = output_orthnormfunc_filename
+                      
+            reconstr_params['build_from_reduced_basis'] = False
+
+        ## Training phase
+        RC = ng(reconstr_params, 
+                delay = delay_dimension, 
+                time_skip = time_skip,
+                ind_term = True)
+        R = RC.run(X_t_train.T)
+        reconstr_params = RC.params
+        reg_param = params['reg_params']
+
+        S = R @ R.T
+        s = LA.svd(R.T, lapack_driver='gesvd', compute_uv=False)
+
+        # Dictionary associated with one specific experiment
+        exp_dict = dict()
+        
+        #Observed vector to be fitted
+        y = s_t_train.T - u_t_train.T
+        
+        #Readout matrix calculation
+        # Cholesky
+        W_out_cho = ridge(s_t_train.T - u_t_train.T, R, 
+                      reg_param = reg_param, solver = 'cholesky')
+    
+        theta_cho = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_cho @ R, axis = 1)/LA.norm(y, axis = 1))
+        
+        exp_dict['W_out_cho'] = W_out_cho.T
+        exp_dict['theta_cho'] = theta_cho
+        
+        # SVD
+        W_out_svd = ridge(s_t_train.T - u_t_train.T, R, 
+                          reg_param = reg_param, solver = 'SVD')
+
+        theta_svd = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_svd @ R, axis = 1)/LA.norm(y, axis = 1))
+        
+        exp_dict['W_out_svd'] = W_out_svd.T
+        exp_dict['theta_svd'] = theta_svd
+        
+        # LU
+        W_out_lu = ridge(s_t_train.T - u_t_train.T, R, 
+                          reg_param = reg_param, solver = 'LU')
+
+        theta_lu = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out_lu @ R, axis = 1)/LA.norm(y, axis = 1))
+        
+        exp_dict['W_out_lu'] = W_out_lu.T
+        exp_dict['theta_lu'] = theta_lu
+        
+        exp_dict['svd_cho'] = LA.norm(W_out_svd - W_out_cho, axis = 1) 
+        exp_dict['svd_lu'] = LA.norm(W_out_svd - W_out_lu, axis = 1)
+        exp_dict['cho_lu'] = LA.norm(W_out_cho - W_out_lu, axis = 1)
+            
+        reconstr_params = RC.params
+            
+        # Import the singular values of the matrix $R$
+        exp_dict['sigvals'] = s
+        exp_dict['cond_number'] = s.max()/s.min()
+                
+        # Import the many parameters for the given simulation. Easier to discover later on.
+        exp_dict['script_params'] = params
+            
+        return exp_dict
+
 #%%    
     def exp_instance(self, params):        
         '''
