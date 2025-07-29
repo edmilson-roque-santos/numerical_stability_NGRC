@@ -453,7 +453,7 @@ class simulation():
     def ngrc_euler_method(self, params):
         '''
         To train and test performance of a NGRC for the given parameters.
-        It creates dynamic time series generated using Euler method.
+        It creates dynamic time series generation using Euler method.
         
         Parameters
         ----------
@@ -673,8 +673,11 @@ class simulation():
 #%%    
     def ngrc_euler_method_index(self, params):
         '''
-        To train and test performance of a NGRC for the given parameters.
-        It creates dynamic time series generated using Euler method.
+        To train and test performance of a NGRC for the given parameters 
+        in the case of partial measurements. Index refers to which component to be
+        measured from the original dynamical system.
+        
+        It creates dynamic time series generation using Euler method.
         
         Parameters
         ----------
