@@ -1795,15 +1795,15 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['x_scale'] = 'linear'
     plot_dict['y_scale'] = 'log'
     plot_dict['y_lim'] = [1e4, 1e18]
-    plot_dict['x_label'] = ''
+    plot_dict['x_label'] = r'$\beta$'
     plot_dict['legend'] = False
     plot_dict['label'] = ''
     
     key_metric = 'diff_sol_vec'
-    ax[0] = plot_metric_box_plot(x_axis, 
+    ax[1] = plot_metric_box_plot(x_axis, 
                               res_dict[key_metric], 
                               plot_dict, 
-                              ax = ax[0],
+                              ax = ax[1],
                               plot_panel = True)
     
     #Plotting the condition number
@@ -1819,7 +1819,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['color'] = list_colors[3]
     plot_dict['alpha'] = 0.7 
     
-    ax2 = ax[1].twinx()  # instantiate a second Axes that shares the same x-axis
+    ax2 = ax[0].twinx()  # instantiate a second Axes that shares the same x-axis
     array = res_dict[key_metric]
     ax_stats(array, x_axis, plot_dict, ax2, positions)
     ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
@@ -1830,7 +1830,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['x_scale'] = 'linear'
     plot_dict['y_scale'] = 'log'
     plot_dict['y_lim'] = [1e4, 1e18]
-    plot_dict['x_label'] = r'$\beta$'
+    plot_dict['x_label'] = ''
     plot_dict['legend'] = True
     plot_dict['error'] = True
     plot_dict['alpha'] = 1.0 
@@ -1841,7 +1841,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['label'] = r'CHO'
     
     array = res_dict[key_metric]
-    ax_stats(array, x_axis, plot_dict, ax[1], positions)
+    ax_stats(array, x_axis, plot_dict, ax[0], positions)
     
     # Plot the SVD maximum thetas
     key_metric = 'theta_svd'
@@ -1849,7 +1849,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['label'] = r'SVD'
     
     array = res_dict[key_metric]
-    ax_stats(array, x_axis, plot_dict, ax[1], positions)
+    ax_stats(array, x_axis, plot_dict, ax[0], positions)
     
     
     # Plot the LU maximum thetas
@@ -1858,7 +1858,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['label'] = r'LU'
     
     array = res_dict[key_metric]
-    ax_stats(array, x_axis, plot_dict, ax[1], positions)
+    ax_stats(array, x_axis, plot_dict, ax[0], positions)
     
     if filename == None:
         return ax
