@@ -650,8 +650,6 @@ class simulation():
                                               tau = tau_lyap, 
                                               dt = dt)
         
-                exp_dict['zmax_train'] = l2_zmax_map(s_t_train.T, v_t_train)
-        
                 exp_dict['abs_psd_train'] = kl_div_psd(s_t_train.T, 
                                                        exp_dict['v_t_train'], 
                                                        dt,
@@ -666,9 +664,7 @@ class simulation():
                 exp_dict['Loss_test'] = loss(s_t_test, exp_dict['v_out_test'], t_vec = t_loss_test, 
                                              tau = tau_lyap, 
                                              dt = dt)
-        
-                exp_dict['zmax_test'] = l2_zmax_map(s_t_test, v_t_test)
-        
+       
                 exp_dict['abs_psd_test'] = kl_div_psd(s_t_test, 
                                                       exp_dict['v_out_test'], 
                                                       dt,
@@ -681,8 +677,6 @@ class simulation():
                 exp_dict['VPT_test'] = -1 
                 exp_dict['Loss_train'] = -1 
                 exp_dict['Loss_test'] = -1 
-                exp_dict['zmax_train'] = -1
-                exp_dict['zmax_test'] = -1
                 exp_dict['abs_psd_train'] = -1
                 exp_dict['abs_psd_test'] = -1
                 

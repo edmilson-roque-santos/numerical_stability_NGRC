@@ -872,7 +872,7 @@ def x_coord_rk_metrics_time_lag(exp = False):
     vary_params = dict()
     vary_params['time_skip'] = np.arange(1, 72, 2, dtype = int)
     
-    experiment['exp_name'] = 'x-coord_RK_time_lag_1-72_ic_25'
+    experiment['exp_name'] = 'x-coord_RK_deg_7_time_lag_1-72_ic_25'
     experiment['network_name'] = 'Lorenz_63'
     # Specify the script to use for the test.
     experiment['script'] = 'ngrc_rk_method_index'
@@ -881,7 +881,7 @@ def x_coord_rk_metrics_time_lag(exp = False):
     experiment['testing'] = True
     
     fixed_params = {'delay_dimension' : 3,
-                    'max_deg_monomials' : 5,
+                    'max_deg_monomials' : 7,
                     'ttrain': 100,
                     'ttest': 100,
                     'Nseeds': 25,

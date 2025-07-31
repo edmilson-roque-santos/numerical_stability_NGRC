@@ -22,7 +22,7 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.05
+dt = 0.025
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -41,11 +41,11 @@ ts_sgn = sgn(dt, ttrain, ttest,
              trans_t = 100, 
              normalize = True,
              seed = seed,
-             method = 'Euler',
+             method = 'RK45',
              dt_fine = 0.01)
 
 folder = 'data/input_data/'
-ts_filename = folder+'Lorenz_ts_Euler_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, 0.01, seed)
+ts_filename = folder+'Lorenz_ts_RK_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, 0.01, seed)
 ts_sgn.generate_signal(parametric_Lorenz, 
                        np.array([10.0, 8.0/3.0, 28]),
                        ts_filename,
@@ -58,7 +58,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 5
+degree = 9
 parameters['exp_name'] = 'compare_alg'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1

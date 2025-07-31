@@ -26,7 +26,7 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.025
+dt = 0.01
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -40,7 +40,7 @@ seed = 1
 #Method of numerical integrating the differential equation
 method = 'RK45'
 # Fine sampling of the time series
-dt_fine = 0.001
+dt_fine = 0.01
 #============================##============================##============================#
 #Generate synthetic data
 ts_sgn = sgn(dt, ttrain, ttest, 

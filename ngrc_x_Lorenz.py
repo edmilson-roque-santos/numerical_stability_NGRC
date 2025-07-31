@@ -60,7 +60,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 parameters = dict()
 
 degree = 5
-parameters['exp_name'] = 'chebyshev_x_coord_reconstr'
+parameters['exp_name'] = 'x_coord_reconstr'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -70,8 +70,8 @@ parameters['expansion_crossed_terms'] = True
 parameters['use_lebesgue'] = False
 parameters['use_kernel'] = True
 parameters['noisy_measurement'] = False
-parameters['use_canonical'] = False
-parameters['use_chebyshev'] = True
+parameters['use_canonical'] = True
+parameters['use_chebyshev'] = False
 parameters['normalize_cols'] = False
 parameters['use_orthonormal'] = False
 parameters['single_density'] = True
@@ -139,6 +139,7 @@ params = RC.params
 
 S = R @ R.T 
 s = LA.svd(R.T, lapack_driver='gesvd', compute_uv=False)
+cond_number = s[0]/s[-1]
 
 if not parameters['use_qr']:
     #Readout matrix calculation
@@ -171,8 +172,12 @@ if parameters['use_qr']:
         W_out[id_node, :] = Q.T @ y 
         W_out[id_node, :] = (LA.inv(r) @ W_out[id_node, :].T)
         
-    v_t_train = u_t_train.T + W_out @ R
-    
+    v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
+
+#Computes the closeness of fit
+y = s_t_train.T - u_t_train.T
+theta = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out @ R, axis = 1)/LA.norm(y, axis = 1))
+   
 tls.plot_training(s_t_train.T, v_t_train, t_train, scale = 1/0.9056)
 
 #============================##============================##============================#

@@ -22,11 +22,11 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.025
+dt = 0.01
 #Delayed coordinates and time skip
 delay_dimension = 3
 #Time skip between time points
-time_skip = 6
+time_skip = 15
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
@@ -36,7 +36,7 @@ seed = 1
 #Method of numerical integrating the differential equation
 method = 'RK45'
 # Fine sampling of the time series
-dt_fine = 0.001
+dt_fine = 0.01
 #============================##============================##============================#
 #Generate synthetic data
 ts_sgn = sgn(dt, ttrain, ttest, 
@@ -168,7 +168,7 @@ if not parameters['use_qr']:
     if params['normalize_cols']:
         W_out = W_out/params['norm_column']
     
-    v_t_train = u_t_train.T + W_out @ R
+    v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
  
 if parameters['use_qr']:
    
@@ -185,7 +185,11 @@ if parameters['use_qr']:
         W_out[id_node, :] = (LA.inv(r) @ W_out[id_node, :].T)
         
     v_t_train = u_t_train.T + W_out @ R
-    
+
+#Computes the closeness of fit
+y = s_t_train.T - u_t_train.T
+theta = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out @ R, axis = 1)/LA.norm(y, axis = 1))
+   
 tls.plot_training(s_t_train.T, v_t_train, t_train, scale = 1/0.9056)
 
 #============================##============================##============================#
