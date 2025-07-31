@@ -1553,6 +1553,12 @@ class simulation():
         if self.experiment['script'] == 'set_rc':
             exp_dict = self.set_rc(params)
         
+        if self.experiment['script'] == 'ngrc_rk_method':
+            exp_dict = self.ngrc_rk_method(params)
+            
+        if self.experiment['script'] == 'ngrc_rk_method_index':
+            exp_dict = self.ngrc_rk_method_index(params)
+        
         if self.experiment['script'] == 'ngrc_euler_method':
             exp_dict = self.ngrc_euler_method(params)
         
