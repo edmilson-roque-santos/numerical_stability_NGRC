@@ -549,7 +549,7 @@ def fig_x_coord_rk_reconstr_time_lags():
     
     experiment['network_name'] = 'Lorenz_63'
     # Specify the script to use for the test.
-    experiment['script'] = 'ngrc_euler_method_index'
+    experiment['script'] = 'ngrc_rk_method_index'
     experiment['dependencies'] = False
     # Specify if we should perform testing
     experiment['testing'] = True
