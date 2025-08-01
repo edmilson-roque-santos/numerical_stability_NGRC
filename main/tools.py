@@ -1730,6 +1730,165 @@ def fig_x_coord_time_skip(res_dict,
             
         plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
 
+def fig_x_coord_rk_time_skip(res_dict, 
+                             x_dict,
+                             plot_dict = None,
+                             filename = None):
+    
+    if plot_dict is None:
+        plot_dict = dict()
+        plot_dict['color'] = list_colors[0]
+        
+    nrows = 3#len(list(res_dict.keys()))
+    
+    if nrows > 1:
+        fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 6), dpi = 300)
+    else:    
+        fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
+    
+    for id_key, key_metric in enumerate(res_dict.keys()):
+        
+        if key_metric == 'theta':
+            plot_dict['y_label'] = r'$\theta_x$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [0, np.pi/2]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+            id_ax = 0
+            mask = False 
+            
+        if key_metric == 'sigvals':
+            plot_dict['y_label'] = r'$\kappa(\Psi)$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e2, 1e14]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+            plot_dict['color'] = list_colors[3]
+            mask = False 
+            
+        if key_metric == 'VPT_test':
+            plot_dict['y_label'] = r'$VPT$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'linear'
+            plot_dict['y_lim'] = [-1e0, 8]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+            id_ax = id_ax + 1 
+            mask_value = 0
+            mask = True 
+            
+        if key_metric == 'abs_psd_test':
+            plot_dict['y_label'] = r'$E$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e-3, 1e0]
+            plot_dict['x_label'] = r'$\tau$'
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''   
+            id_ax = id_ax + 1
+            mask_value = 1
+            mask = True 
+            
+        optf_array = res_dict[key_metric][id_key]
+        if mask == True:
+            optf_array[optf_array < 0] = mask_value 
+        
+        lower, median, upper  = np.array([np.quantile(optf_array, 0.25, axis = 1), 
+                                          np.quantile(optf_array, 0.5, axis = 1), 
+                                          np.quantile(optf_array, 0.75, axis = 1)])
+        
+        if key_metric == 'theta':
+            ax[id_ax].plot(x_dict, 
+                    median,
+                    '-',
+                    color = plot_dict['color'],
+                    linewidth=1.1)
+    
+            ax[id_ax].fill_between(x_dict, lower, median,
+                                    color = plot_dict['color'], 
+                                    alpha = 0.25)
+    
+            ax[id_ax].fill_between(x_dict, median, upper,
+                                    color = plot_dict['color'], 
+                                    alpha = 0.25)
+            ax[id_ax].fill_between(np.arange(13, 17), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], 
+                                    alpha = 0.25)
+            
+            
+            ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
+            ax[id_ax].set_xscale(plot_dict['x_scale'])        
+            ax[id_ax].set_yscale(plot_dict['y_scale'])
+            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            
+        elif key_metric == 'sigvals':
+            ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
+            
+            ax2.plot(x_dict, 
+                    median,
+                    '-',
+                    color = plot_dict['color'],
+                    linewidth=1.1)
+    
+            ax2.fill_between(x_dict, lower, median,
+                                    color = plot_dict['color'], 
+                                    alpha = 0.25)
+    
+            ax2.fill_between(x_dict, median, upper,
+                                    color = plot_dict['color'], 
+                                    alpha = 0.25)
+            ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
+            ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
+            ax2.set_xscale(plot_dict['x_scale'])        
+            ax2.set_yscale(plot_dict['y_scale'])
+            labels = [1e2, 1e7, 1e12, 1e17]
+            ax2.set_yticks(labels, 
+                             labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
+        else:
+            
+            error = np.zeros((2, x_dict.shape[0]))
+            error[0, :] = lower
+            error[1, :] = upper
+            
+            ax[id_ax].errorbar(x_dict, 
+                                median,
+                                yerr = error,
+                                color = list_colors[0],
+                                fmt = list_markers[0],
+                                capsize=3,
+                                ms = 8)
+        
+            ax[id_ax].fill_between(np.arange(13, 17), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], 
+                                    alpha = 0.25)
+            
+            
+            ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
+            ax[id_ax].set_xscale(plot_dict['x_scale'])        
+            ax[id_ax].set_yscale(plot_dict['y_scale'])
+            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+    
+    
+    if filename == None:
+        plt.tight_layout()
+        plt.show()
+    else:
+        
+        folder = 'Figures/'
+        out_direc = os.path.join('', folder)
+            
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        filename = os.path.join(out_direc, filename)
+            
+        plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
 
 def ax_stats(array, x_axis, plot_dict, ax, positions):
     

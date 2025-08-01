@@ -339,6 +339,8 @@ class lab(sim):
                         if key_metric == 'sigvals':
                             sigvals = self.exp_dict[comb][id_seed][key_metric]
                             optf_array[id_, id_seed] = sigvals.max()/sigvals.min()
+                        elif key_metric == 'theta':
+                            optf_array[id_, id_seed] = np.max(self.exp_dict[comb][id_seed][key_metric])
                         else:
                             optf_array[id_, id_seed] = self.exp_dict[comb][id_seed][key_metric]
                 

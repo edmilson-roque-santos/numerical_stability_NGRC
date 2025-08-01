@@ -870,7 +870,7 @@ def x_coord_rk_metrics_time_lag(exp = False):
     experiment = dict()
     
     vary_params = dict()
-    vary_params['time_skip'] = np.arange(1, 72, 2, dtype = int)
+    vary_params['time_skip'] = np.arange(1, 32, 1, dtype = int)
     
     experiment['exp_name'] = 'x-coord_RK_deg_7_time_lag_1-72_ic_25'
     experiment['network_name'] = 'Lorenz_63'

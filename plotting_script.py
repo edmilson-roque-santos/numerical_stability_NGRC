@@ -516,7 +516,68 @@ def fig_training_features():
     
     
     return res_dicts
+
+# %%
+def fig_x_coord_rk_reconstr_time_lags():
+    # Script for plotting Figure of reconstr x_coord for increasing time lags
+    # Specifically using the Runge Kutta method for integrating the ODE.
     
+    #This script test the following experiment:
+    
+    '''
+    Consider the Runge-Kutta 4 (5) method
+    Select only the x-coordinate
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 5000 
+    Ntest = 1
+    and the step size $\Delta t = 0.01$.
+    Fix the number of delay dimensions to k = 2.
+    Fix the maximum degree of polynomial
+    Fix the x-variable only
+    regularizer parameter = 0
+    Let us consider two variations:
+        different time skips
+        
+    '''    
+    
+    experiment = dict()
+    
+    vary_params = dict()
+    vary_params['time_skip'] = np.arange(1, 32, 1, dtype = int)
+    
+    experiment['exp_name'] = 'x-coord_RK_deg_7_time_lag_1-72_ic_25'
+    
+    experiment['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_euler_method_index'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 3,
+                    'max_deg_monomials' : 7,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'index' : np.array([0])
+        }
+    
+    
+    L2 = lab(experiment, vary_params, fixed_params)
+    x_keys = 'time_skip'
+    
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'abs_psd_test']
+    
+    res_dicts = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    tls.fig_x_coord_rk_time_skip(res_dicts, 
+                                 vary_params['time_skip'],
+                                 plot_dict = None,
+                                 filename = experiment['exp_name'] 
+                                 )
 # %%
 def fig_cond_num_chebyshev_poly_deg():
     #This script test the following experiment:
