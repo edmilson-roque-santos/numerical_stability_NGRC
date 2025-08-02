@@ -377,7 +377,8 @@ class simulation():
         s = LA.svd(R.T, lapack_driver='gesvd', compute_uv=False)
 
         #Readout matrix calculation
-        W_out = ridge(s_t_train.T - u_t_train.T, R, reg_param = reg_param)
+        W_out = ridge(s_t_train.T - u_t_train.T, R, reg_param = reg_param,
+                      solver = params['solver_ridge'])
         
         if reconstr_params['use_orthonormal']:
             M = s_t_train.shape[0]

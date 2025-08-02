@@ -933,12 +933,16 @@ def subsampling_rk_maximum_degree(exp = False):
         
     '''    
     
+    #=========================================================================#
+    # Compute the solution using Cholesky factorization in Normal equation
+    #=========================================================================#
     experiment = dict()
     
     vary_params = dict()
-    vary_params['max_deg_monomials'] = np.arange(2, 21, 1, dtype = int)
     
-    experiment['exp_name'] = 'subsampling_RK_h_0_1_deg_2_21_ic_25'
+    vary_params['max_deg_monomials'] = np.arange(2, 16, 1, dtype = int)
+    
+    experiment['exp_name'] = 'CHO_max_deg_2_16'
     experiment['network_name'] = 'Lorenz_63'
     # Specify the script to use for the test.
     experiment['script'] = 'ngrc_rk_method'
@@ -953,32 +957,82 @@ def subsampling_rk_maximum_degree(exp = False):
                     'Nseeds': 25,
                     'reg_params' : 0,
                     'normalize_ts' : True,
-                    'normalize_cols' : False
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'cholesky'
+        }
+    
+    
+    #=========================================================================#
+    # Compute the solution using SVD for least square
+    #=========================================================================#
+    
+    experiment1 = dict()
+    
+    vary_params1 = dict()
+    
+    vary_params1['max_deg_monomials'] = np.arange(2, 16, 1, dtype = int)
+    
+    experiment1['exp_name'] = 'SVD_max_deg_2_16'
+    experiment1['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment1['script'] = 'ngrc_rk_method'
+    experiment1['dependencies'] = False
+    # Specify if we should perform testing
+    experiment1['testing'] = True
+    
+    fixed_params1 = {'delay_dimension' : 1,
+                    'dt': 0.1,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'SVD'
+        }
+    
+    #=========================================================================#
+    # Compute the solution using inverse formula - LU factorization
+    #=========================================================================#
+    
+    experiment2 = dict()
+    
+    vary_params2 = dict()
+    
+    vary_params2['max_deg_monomials'] = np.arange(2, 16, 1, dtype = int)
+    
+    experiment2['exp_name'] = 'LU_max_deg_2_16'
+    experiment2['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment2['script'] = 'ngrc_rk_method'
+    experiment2['dependencies'] = False
+    # Specify if we should perform testing
+    experiment2['testing'] = True
+    
+    fixed_params2 = {'delay_dimension' : 1,
+                    'dt': 0.1,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'LU'
         }
     
     if exp:
         S = sim(experiment, vary_params, fixed_params)
         exps_dict = S.run()
-    else:
-        L = lab(experiment, vary_params, fixed_params)
-        x_keys = 'time_skip'
         
-        list_metrics = ['sigvals']#, 'VPT_test', 'zmax_test', 'abs_psd_test'
+        S1 = sim(experiment1, vary_params1, fixed_params1)
+        exps_dict1 = S1.run()
         
-        res_dict = L.metrics_time_skip(list_metrics, x_keys = x_keys)
-        
-        x_axis = vary_params[x_keys]
-        #tls.plot_fig_metrics_time_skip(res_dict, x_axis, 
-        #                               filename = experiment['exp_name']+'metric_time_skip',
-        #                               reference_value = True)
-        
-        list_metrics = ['sigvals']
-        L.plot_fig_metrics_time_skip(list_metrics, x_keys = x_keys,
-                                     filename = None)        
-        
-        exps_dict = L.exp_dict
-    return exps_dict 
+        S2 = sim(experiment2, vary_params2, fixed_params2)
+        exps_dict2 = S2.run()
 
+        return exps_dict, exps_dict1, exps_dict2
+    
+    
 
 
 

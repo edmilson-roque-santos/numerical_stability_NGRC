@@ -823,7 +823,8 @@ def plot_metric_box_plot(x_axis,
                          plot_dict, 
                          ax = None,
                          plot_panel = False,
-                         positions = None):
+                         positions = None,
+                         labels = None):
     
     if 'color' in plot_dict:
         boxprops = dict(linestyle='-', color=plot_dict['color'], 
@@ -858,11 +859,13 @@ def plot_metric_box_plot(x_axis,
     ax.set_xlabel(r'{}'.format(plot_dict['x_label']))
     ax.set_xscale(plot_dict['x_scale'])        
     ax.set_yscale(plot_dict['y_scale'])
-    #ax.set_xlim(plot_dict['x_lim'][0], plot_dict['x_lim'][1])
-    #ax.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+        
     
-    
-    labels = np.concatenate(([r'$0$'], [fr'$10^{{{int(np.log10(val))}}}$' for val in x_axis[1:]]))
+    if labels is None:
+        labels = np.concatenate(([r'$0$'], [fr'$10^{{{int(np.log10(val))}}}$' for val in x_axis[1:]]))
+    else:
+        labels = [fr'${val}$' for val in x_axis]
+
     ax.set_xticks(positions, 
                   labels = labels)              
     
@@ -2201,7 +2204,137 @@ def fig_training_features_vs_reg(res_dict,
         plt.savefig(filename+".pdf", format = 'pdf')
     
     return 
+
+
+def plot_fig_metrics_subsampling_solver(res_dict, 
+                                     x_axis,
+                                     ax = None,
+                                     plot_dict = None,
+                                     filename = None,
+                                     reference_value = False):
     
+    positions = np.linspace(1, x_axis.shape[0] + 5, x_axis.shape[0])
+    
+    if plot_dict is None:
+        plot_dict = dict()
+        
+    nrows = len(list(res_dict.keys()))
+    
+    if ax is None:
+        if nrows > 1:
+            fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (5, 7), dpi = 300)
+        else:    
+            fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
+    
+    for id_key, key_metric in enumerate(res_dict.keys()):
+        
+        if key_metric == 'sigvals':
+            plot_dict['y_label'] = r'$\kappa(\hat{\Psi})$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e4, 1e18]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+                        
+        if key_metric == 'VPT_test':
+            plot_dict['y_label'] = r'$VPT$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'linear'
+            plot_dict['y_lim'] = [-1, 8]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+                
+            
+        if key_metric == 'zmax_test':
+            plot_dict['y_label'] = r'Distance - Succ Max Map'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e-2, 1e2]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+                
+        if key_metric == 'abs_psd_test':
+            plot_dict['y_label'] = r'$E$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e-3, 1e1]
+            plot_dict['x_label'] = r'$p$'
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''   
+                
+        if nrows > 1:
+            ax[id_key] = plot_metric_box_plot(x_axis, 
+                                              res_dict[key_metric][id_key], 
+                                              plot_dict, 
+                                              ax = ax[id_key],
+                                              plot_panel = True,
+                                              positions = positions,
+                                              labels = x_axis)
+        
+            ax[id_key].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
+        
+            ax[id_key].fill_between(np.arange(6, 8.5, 0.01), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], alpha = 0.40)
+            
+        else:
+            ax = plot_metric_box_plot(x_axis, 
+                                      res_dict[key_metric], 
+                                      plot_dict, 
+                                      ax = ax,
+                                      plot_panel = True)
+            
+          
+    if filename == None:
+        return ax
+    else:
+        plt.tight_layout()
+        plt.savefig(filename+".pdf", format = 'pdf')
+
+def fig_subsampling_solver(results_dict, x_axis, filename = None):
+
+    
+    keys = list(results_dict.keys())
+    
+    fig, ax = plt.subplots(3, 3, sharex=True,
+                           figsize=(10, 5), dpi=300, layout='constrained')
+
+    
+    for id_key, key in enumerate(keys):
+        
+        ax[:, id_key] = plot_fig_metrics_subsampling_solver(results_dict[key], 
+                                                            x_axis, ax[:, id_key], 
+                                                            plot_dict = None,
+                                                            reference_value=True)
+        
+        ax[0, id_key].set_title(fr'{key}')
+        
+        if id_key >= 1:
+            ax[0, id_key].set_ylabel(r'')
+            ax[1, id_key].set_ylabel(r'')
+            ax[2, id_key].set_ylabel(r'')
+        
+    if filename == None:
+        plt.tight_layout()
+        plt.show()
+    else:
+        
+        folder = 'Figures/'
+        out_direc = os.path.join('', folder)
+            
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        filename = os.path.join(out_direc, filename)
+            
+        plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+
+        
+    return     
+
+
 def num_poly_basis(delays, max_degree, dimension):
     
     return np.round(scipy.special.comb(delays*dimension + max_degree, max_degree))

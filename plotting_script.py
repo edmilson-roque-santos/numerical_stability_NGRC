@@ -766,3 +766,129 @@ def fig_subsampling_rk_max_deg():
                                  plot_dict = None,
                                  filename = experiment['exp_name'] 
                                  )
+    
+# %%
+def fig_subsampling_solvers():
+    
+    res_dict = dict()
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'zmax_test', 'abs_psd_test']
+    
+    x_keys = 'max_deg_monomials'
+    #This script test the following experiment:
+    '''
+    Consider the Runge-Kutta 4 (5) method
+    Sparse sampling: original 0.01 but sampling 0.05
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 10000 
+    Ntest = 1
+    and fine step size $\Delta t = 0.01$.
+    and step size $\Delta t = 0.05$.
+    Fix the number of delay dimensions to k = 1.
+    regularizer parameter = 0
+    Variations:
+        the maximum degree of polynomial
+        
+    '''    
+    
+    #=========================================================================#
+    # Compute the solution using Cholesky factorization in Normal equation
+    #=========================================================================#
+    experiment = dict()
+    
+    vary_params = dict()
+    
+    vary_params['max_deg_monomials'] = np.arange(2, 16, 1, dtype = int)
+    
+    experiment['exp_name'] = 'CHO_max_deg_2_16'
+    experiment['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_rk_method'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 1,
+                    'dt': 0.1,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'cholesky'
+        }
+    
+    L = lab(experiment, vary_params, fixed_params)
+    
+    res_dict['Cholesky'] = L.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    #=========================================================================#
+    # Compute the solution using SVD for least square
+    #=========================================================================#
+    
+    experiment1 = dict()
+    
+    vary_params1 = dict()
+    
+    vary_params1['max_deg_monomials'] = np.arange(2, 16, 1, dtype = int)
+    
+    experiment1['exp_name'] = 'SVD_max_deg_2_16'
+    experiment1['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment1['script'] = 'ngrc_rk_method'
+    experiment1['dependencies'] = False
+    # Specify if we should perform testing
+    experiment1['testing'] = True
+    
+    fixed_params1 = {'delay_dimension' : 1,
+                    'dt': 0.1,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'SVD'
+        }
+    
+    L1 = lab(experiment1, vary_params1, fixed_params1)
+    
+    res_dict['SVD'] = L1.metrics_time_skip(list_metrics, x_keys = x_keys)
+        
+    #=========================================================================#
+    # Compute the solution using inverse formula - LU factorization
+    #=========================================================================#
+    
+    experiment2 = dict()
+    
+    vary_params2 = dict()
+    
+    vary_params2['max_deg_monomials'] = np.arange(2, 16, 1, dtype = int)
+    
+    experiment2['exp_name'] = 'LU_max_deg_2_16'
+    experiment2['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment2['script'] = 'ngrc_rk_method'
+    experiment2['dependencies'] = False
+    # Specify if we should perform testing
+    experiment2['testing'] = True
+    
+    fixed_params2 = {'delay_dimension' : 1,
+                    'dt': 0.1,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'LU'
+        }
+    
+    L2 = lab(experiment2, vary_params2, fixed_params2)
+    
+    res_dict['LU'] = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    tls.fig_subsampling_solver(res_dict, 
+                               x_axis = vary_params['max_deg_monomials'], 
+                               filename = 'subsampling_solvers')
+    
