@@ -1052,6 +1052,11 @@ class simulation():
         exp_dict = dict()
         exp_dict['W_out'] = W_out.T
     
+        #Computes the closeness of fit
+        y = s_t_train.T - u_t_train.T
+        theta = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out @ R, axis = 1)/LA.norm(y, axis = 1))
+        exp_dict['theta'] = theta
+    
         # Import the singular values of the matrix $R$
         exp_dict['sigvals'] = s
 

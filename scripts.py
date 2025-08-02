@@ -495,8 +495,8 @@ def x_coord_metrics_time_lag(exp = False):
     Fix the number of data points to Ntrain = 5000 
     Ntest = 1
     and the step size $\Delta t = 0.01$.
-    Fix the number of delay dimensions to k = 2.
-    Fix the maximum degree of polynomial
+    Fix the number of delay dimensions to k = 3.
+    Fix the maximum degree of polynomial 5
     Fix the x-variable only
     regularizer parameter = 0
     Let us consider two variations:
@@ -507,9 +507,9 @@ def x_coord_metrics_time_lag(exp = False):
     experiment = dict()
     
     vary_params = dict()
-    vary_params['time_skip'] = np.arange(1, 72, 2, dtype = int)
+    vary_params['time_skip'] = np.arange(1, 32, 1, dtype = int)
     
-    experiment['exp_name'] = 'x-coord_reconstr_Time_lag_1-70_ic_50'
+    experiment['exp_name'] = 'x-coord_reconstr_Time_lag_1-32_ic_25'
     experiment['network_name'] = 'Lorenz_63'
     # Specify the script to use for the test.
     experiment['script'] = 'ngrc_euler_method_index'
@@ -914,6 +914,70 @@ def x_coord_rk_metrics_time_lag(exp = False):
         exps_dict = L.exp_dict
     return exps_dict 
 
+# %%
+def subsampling_rk_maximum_degree(exp = False):
+    
+    #This script test the following experiment:
+    '''
+    Consider the Runge-Kutta 4 (5) method
+    Sparse sampling: original 0.01 but sampling 0.05
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 10000 
+    Ntest = 1
+    and fine step size $\Delta t = 0.01$.
+    and step size $\Delta t = 0.05$.
+    Fix the number of delay dimensions to k = 1.
+    regularizer parameter = 0
+    Variations:
+        the maximum degree of polynomial
+        
+    '''    
+    
+    experiment = dict()
+    
+    vary_params = dict()
+    vary_params['max_deg_monomials'] = np.arange(2, 11, 1, dtype = int)
+    
+    experiment['exp_name'] = 'subsampling_RK_deg_2_11_ic_25'
+    experiment['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_rk_method'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 1,
+                    'dt': 0.05,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False
+        }
+    
+    if exp:
+        S = sim(experiment, vary_params, fixed_params)
+        exps_dict = S.run()
+    else:
+        L = lab(experiment, vary_params, fixed_params)
+        x_keys = 'time_skip'
+        
+        list_metrics = ['sigvals']#, 'VPT_test', 'zmax_test', 'abs_psd_test'
+        
+        res_dict = L.metrics_time_skip(list_metrics, x_keys = x_keys)
+        
+        x_axis = vary_params[x_keys]
+        #tls.plot_fig_metrics_time_skip(res_dict, x_axis, 
+        #                               filename = experiment['exp_name']+'metric_time_skip',
+        #                               reference_value = True)
+        
+        list_metrics = ['sigvals']
+        L.plot_fig_metrics_time_skip(list_metrics, x_keys = x_keys,
+                                     filename = None)        
+        
+        exps_dict = L.exp_dict
+    return exps_dict 
 
 
 
