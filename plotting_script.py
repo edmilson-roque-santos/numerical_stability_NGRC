@@ -761,12 +761,12 @@ def fig_subsampling_rk_max_deg():
     
     res_dicts = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
     
-    tls.fig_x_coord_rk_time_skip(res_dicts, 
-                                 vary_params['max_deg_monomials'],
-                                 plot_dict = None,
-                                 filename = experiment['exp_name'] 
-                                 )
-    
+    tls.fig_trade_off(res_dicts, 
+                    vary_params['max_deg_monomials'],
+                    plot_dict = None,
+                    filename = None 
+                    )
+   
 # %%
 def fig_subsampling_solvers():
     

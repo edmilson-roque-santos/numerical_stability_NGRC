@@ -2018,6 +2018,119 @@ def fig_x_coord_rk_time_skip(res_dict,
                 
             plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
 
+def fig_trade_off(res_dict, 
+                  x_dict,
+                  plot_dict = None,
+                  filename = None):
+        
+        if plot_dict is None:
+            plot_dict = dict()
+            plot_dict['color'] = list_colors[0]
+            
+        nrows = 2
+        
+        fig, ax = plt.subplots(nrows, 1, sharex= True, 
+                               figsize = (5, 6), dpi = 300,
+                               constrained_layout=True)
+        
+        key_metric = 'theta'
+        plot_dict['y_label'] = r'$\theta_x$'
+        plot_dict['x_scale'] = 'linear'
+        plot_dict['y_scale'] = 'log'
+        plot_dict['y_lim'] = [1e-4, np.pi/2]
+        plot_dict['x_label'] = ''
+        plot_dict['legend'] = False
+        plot_dict['label'] = ''
+        plot_dict['color'] = list_colors[0]
+        id_ax = 0
+        mask = False 
+            
+        theta_array = res_dict[key_metric][id_ax]
+           
+        lower, median, upper  = np.array([np.nanquantile(theta_array, 0.25, axis = 1), 
+                                          np.nanquantile(theta_array, 0.5, axis = 1), 
+                                          np.nanquantile(theta_array, 0.75, axis = 1)])
+        
+        ax[id_ax].plot(x_dict, 
+                    median,
+                    '-o',
+                    color = plot_dict['color'],
+                    linewidth=1.1)
+            
+            
+        ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
+        ax[id_ax].set_xscale(plot_dict['x_scale'])        
+        ax[id_ax].set_yscale(plot_dict['y_scale'])
+        ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+        
+        
+        key_metric = 'sigvals'
+        plot_dict['y_label'] = r'$\kappa(\Psi)$'
+        plot_dict['x_scale'] = 'linear'
+        plot_dict['y_scale'] = 'log'
+        plot_dict['y_lim'] = [1e2, 1e14]
+        plot_dict['x_label'] = ''
+        plot_dict['legend'] = False
+        plot_dict['label'] = ''
+        plot_dict['color'] = list_colors[3]
+        mask = False 
+        
+        kappa_array = res_dict[key_metric][1]
+           
+        lower_kappa, median_kappa, upper_kappa  = np.array([np.nanquantile(kappa_array, 0.25, axis = 1), 
+                                          np.nanquantile(kappa_array, 0.5, axis = 1), 
+                                          np.nanquantile(kappa_array, 0.75, axis = 1)])
+        
+        
+        ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
+        
+        ax2.plot(x_dict, 
+                median_kappa,
+                '-o',
+                color = plot_dict['color'],
+                linewidth=1.1)
+
+        ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
+        ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
+        ax2.set_xscale(plot_dict['x_scale'])        
+        ax2.set_yscale(plot_dict['y_scale'])
+        labels = [1e2, 1e7, 1e12, 1e17]
+        ax2.set_yticks(labels, 
+                         labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
+        
+        min_kappa, max_kappa = np.min(median_kappa), np.max(median_kappa)
+        min_theta, max_theta = np.min(median), np.max(median)
+        
+        
+        ka = lambda x: (median_kappa - min_kappa)/(max_kappa - min_kappa) 
+        ta = lambda x: (median - min_theta)/(max_theta - min_theta) 
+        
+        f = lambda x: ka(x) + ta(x)
+        
+        ax[1].plot(x_dict, f(x_dict), 'k-o')
+        ax[1].set_yscale(plot_dict['y_scale'])
+        
+        
+        fig1, ax1 = plt.subplots(1, 1, dpi = 300)
+        
+        ax1.scatter(ka(x_dict), ta(x_dict))
+        ax1.set_yscale('log')
+        ax1.set_xscale('log')
+        
+        if filename == None:
+            plt.tight_layout()
+            plt.show()
+        else:
+            
+            folder = 'Figures/'
+            out_direc = os.path.join('', folder)
+                
+            if os.path.isdir(out_direc) == False:
+                os.makedirs(out_direc)
+            filename = os.path.join(out_direc, filename)
+                
+            plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+
 def fig_partial_measurements(res_dicts, x_dict, filename = None):
     
     
