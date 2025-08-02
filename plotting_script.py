@@ -421,9 +421,9 @@ def fig_x_coord_reconstr_time_lags():
     experiment = dict()
     
     vary_params = dict()
-    vary_params['time_skip'] = np.arange(1, 72, 2, dtype = int)
+    vary_params['time_skip'] = np.arange(1, 32, 2, dtype = int)
     
-    experiment['exp_name'] = 'x-coord_reconstr_Time_lag_1-70_ic_50'
+    experiment['exp_name'] = 'x-coord_reconstr_Time_lag_1-32_ic_25'
     experiment['network_name'] = 'Lorenz_63'
     # Specify the script to use for the test.
     experiment['script'] = 'ngrc_euler_method_index'
@@ -446,7 +446,7 @@ def fig_x_coord_reconstr_time_lags():
     L2 = lab(experiment, vary_params, fixed_params)
     x_keys = 'time_skip'
     
-    list_metrics = ['sigvals', 'VPT_test', 'abs_psd_test']
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'abs_psd_test']
     
     res_dicts = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
     

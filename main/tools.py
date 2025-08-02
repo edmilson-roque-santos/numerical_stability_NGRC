@@ -11,6 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.gridspec import GridSpec
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
 import os
 import seaborn as sns
 from scipy.signal import find_peaks
@@ -1625,15 +1627,29 @@ def fig_x_coord_time_skip(res_dict,
         plot_dict = dict()
         plot_dict['color'] = list_colors[0]
         
-    nrows = len(list(res_dict.keys()))
+    nrows = 3#len(list(res_dict.keys()))
     
     if nrows > 1:
-        fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 6), dpi = 300)
+        fig, ax = plt.subplots(nrows, 1, sharex= True, 
+                               figsize = (5, 6), dpi = 300,
+                               constrained_layout=True)
     else:    
         fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
     
     for id_key, key_metric in enumerate(res_dict.keys()):
         
+        if key_metric == 'theta':
+            plot_dict['y_label'] = r'$\theta_x$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e-4, np.pi/2]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+            plot_dict['color'] = list_colors[0]
+            id_ax = 0
+            mask = False 
+            
         if key_metric == 'sigvals':
             plot_dict['y_label'] = r'$\kappa(\Psi)$'
             plot_dict['x_scale'] = 'linear'
@@ -1642,79 +1658,133 @@ def fig_x_coord_time_skip(res_dict,
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-            
-            
+            plot_dict['color'] = list_colors[3]
+            mask = False 
             
         if key_metric == 'VPT_test':
             plot_dict['y_label'] = r'$VPT$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'linear'
-            plot_dict['y_lim'] = [-1e0, 8]
+            plot_dict['y_lim'] = [-1e0, 12]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-                
+            id_ax = id_ax + 1 
+            mask_value = np.nan 
+            mask = True 
+            
         if key_metric == 'abs_psd_test':
             plot_dict['y_label'] = r'$E$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-3, 1e0]
+            plot_dict['y_lim'] = [1e-4, 5e0]
             plot_dict['x_label'] = r'$\tau$'
             plot_dict['legend'] = False
             plot_dict['label'] = ''   
-       
-    
+            id_ax = id_ax + 1
+            mask_value = np.nan 
+            mask = True 
+            
         optf_array = res_dict[key_metric][id_key]
+        if mask == True:
+            optf_array[optf_array < 0] = mask_value 
         
-        lower, median, upper  = np.array([np.quantile(optf_array, 0.25, axis = 1), 
-                                          np.quantile(optf_array, 0.5, axis = 1), 
-                                          np.quantile(optf_array, 0.75, axis = 1)])
+        # Mask the divergent data
+        finite_mask = np.isfinite(optf_array)
+        bounded_counts = finite_mask.sum(axis=1)
+        perc = bounded_counts/optf_array.shape[1]
         
-        if id_key == 0:
-            ax[id_key].plot(x_dict, 
+        lower, median, upper  = np.array([np.nanquantile(optf_array, 0.25, axis = 1), 
+                                          np.nanquantile(optf_array, 0.5, axis = 1), 
+                                          np.nanquantile(optf_array, 0.75, axis = 1)])
+        
+        if key_metric == 'theta':
+            ax[id_ax].plot(x_dict, 
                     median,
                     '-',
                     color = plot_dict['color'],
                     linewidth=1.1)
     
-            ax[id_key].fill_between(x_dict, lower, median,
+            ax[id_ax].fill_between(x_dict, lower, median,
                                     color = plot_dict['color'], 
                                     alpha = 0.25)
     
-            ax[id_key].fill_between(x_dict, median, upper,
+            ax[id_ax].fill_between(x_dict, median, upper,
                                     color = plot_dict['color'], 
+                                    alpha = 0.25)
+            ax[id_ax].fill_between(np.arange(14, 17), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], 
                                     alpha = 0.25)
             
             
+            ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
+            ax[id_ax].set_xscale(plot_dict['x_scale'])        
+            ax[id_ax].set_yscale(plot_dict['y_scale'])
+            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            
+        elif key_metric == 'sigvals':
+            ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
+            
+            ax2.plot(x_dict, 
+                    median,
+                    '-',
+                    color = plot_dict['color'],
+                    linewidth=1.1)
+    
+            ax2.fill_between(x_dict, lower, median,
+                                    color = plot_dict['color'], 
+                                    alpha = 0.25)
+    
+            ax2.fill_between(x_dict, median, upper,
+                                    color = plot_dict['color'], 
+                                    alpha = 0.25)
+            ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
+            ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
+            ax2.set_xscale(plot_dict['x_scale'])        
+            ax2.set_yscale(plot_dict['y_scale'])
+            labels = [1e2, 1e7, 1e12, 1e17]
+            ax2.set_yticks(labels, 
+                             labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         else:
             
-            error = np.zeros((2, x_dict.shape[0]))
-            error[0, lower >= 0] = lower[lower >= 0]
-            error[1, upper >= 0] = upper[upper >= 0]
+            sns_colors = sns.color_palette("Blues", as_cmap=True)
+            norm = Normalize(vmin=0, vmax=1)
+            colors = sns_colors(norm(perc))
             
-            ax[id_key].errorbar(x_dict, 
-                                median,
-                                yerr = error,
+            ax[id_ax].scatter(x_dict, median, color=colors)
+            
+            error = np.zeros((2, x_dict.shape[0]))
+            error[0, perc >= 0.5] = lower[perc >= 0.5]
+            error[1, perc >= 0.5] = upper[perc >= 0.5]
+            
+            ax[id_ax].errorbar(x_dict[perc >= 0.5], 
+                                median[perc >= 0.5],
+                                yerr = error[:, perc >= 0.5],
                                 color = list_colors[0],
-                                fmt = list_markers[0],
+                                fmt = '',
                                 capsize=3,
-                                ms = 8)
+                                ms = 1,
+                                alpha = 0.5)
         
-        ax[id_key].fill_between(np.arange(13, 17), 
-                                plot_dict['y_lim'][0], plot_dict['y_lim'][1],
-                                color = list_colors[1], 
-                                alpha = 0.25)
-        
-        
-        ax[id_key].set_xlabel(r'{}'.format(plot_dict['x_label']))
-        ax[id_key].set_xscale(plot_dict['x_scale'])        
-        ax[id_key].set_yscale(plot_dict['y_scale'])
-        ax[id_key].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            ax[id_ax].fill_between(np.arange(14, 17), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], 
+                                    alpha = 0.25)
+            
+            
+            
+            ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
+            ax[id_ax].set_xscale(plot_dict['x_scale'])        
+            ax[id_ax].set_yscale(plot_dict['y_scale'])
+            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
     
-    labels = [1e2, 1e6, 1e10, 1e14]
-    ax[0].set_yticks(labels, 
-                     labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
-    
+    # Colorbar
+    sm = ScalarMappable(norm=norm, cmap=sns_colors)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax[id_ax],
+                        label = r'Fraction of bounded NGRC models',
+                        location="bottom")
     
     if filename == None:
         plt.tight_layout()
@@ -1734,10 +1804,6 @@ def fig_x_coord_rk_time_skip(res_dict,
                              x_dict,
                              plot_dict = None,
                              filename = None):
-    
-    from matplotlib.colors import Normalize
-    from matplotlib.cm import ScalarMappable
-    
     
     if plot_dict is None:
         plot_dict = dict()
