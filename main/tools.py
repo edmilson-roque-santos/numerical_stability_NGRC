@@ -1871,12 +1871,12 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax[id_ax].scatter(x_dict, median, color=colors)
             
             error = np.zeros((2, x_dict.shape[0]))
-            error[0, :] = lower
-            error[1, :] = upper
+            error[0, perc >= 0.5] = lower[perc >= 0.5]
+            error[1, perc >= 0.5] = upper[perc >= 0.5]
             
-            ax[id_ax].errorbar(x_dict, 
-                                median,
-                                yerr = error,
+            ax[id_ax].errorbar(x_dict[perc >= 0.5], 
+                                median[perc >= 0.5],
+                                yerr = error[:, perc >= 0.5],
                                 color = list_colors[0],
                                 fmt = '',
                                 capsize=3,
