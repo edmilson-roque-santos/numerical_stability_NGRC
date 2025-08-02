@@ -625,4 +625,57 @@ def fig_cond_num_chebyshev_poly_deg():
                                plot_dict = {'label':''},
                                filename = experiment['exp_name'])
     
+# %%
+def fig_subsampling_rk_max_deg():
+    #This script test the following experiment:
+    '''
+    Consider the Runge-Kutta 4 (5) method
+    Sparse sampling: original 0.01 but sampling 0.05
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 10000 
+    Ntest = 1
+    and fine step size $\Delta t = 0.01$.
+    and step size $\Delta t = 0.05$.
+    Fix the number of delay dimensions to k = 1.
+    regularizer parameter = 0
+    Variations:
+        the maximum degree of polynomial
+        
+    '''    
     
+    experiment = dict()
+    
+    vary_params = dict()
+    vary_params['max_deg_monomials'] = np.arange(2, 11, 1, dtype = int)
+    
+    experiment['exp_name'] = 'subsampling_RK_deg_2_11_ic_25'
+    experiment['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_rk_method'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 1,
+                    'dt': 0.05,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False
+        }
+    
+    
+    L2 = lab(experiment, vary_params, fixed_params)
+    x_keys = 'max_deg_monomials'
+    
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'abs_psd_test']
+    
+    res_dicts = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    tls.fig_x_coord_rk_time_skip(res_dicts, 
+                                 vary_params['time_skip'],
+                                 plot_dict = None,
+                                 filename = experiment['exp_name'] 
+                                 )
