@@ -24,14 +24,14 @@ from main.base_polynomial import poly_library as polb
 #Time step - sampling
 dt = 0.01
 #Delayed coordinates and time skip
-delay_dimension = 2
+delay_dimension = 1
 #Time skip between time points
 time_skip = 1
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 5
-ttest = 100
+ttest = 1
 seed = 1
 #============================##============================##============================#
 #Generate synthetic data
@@ -58,7 +58,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 2
+degree = 20
 parameters['exp_name'] = 'computing thetas '#'Euler_plot_fig1'#
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1

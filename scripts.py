@@ -936,9 +936,9 @@ def subsampling_rk_maximum_degree(exp = False):
     experiment = dict()
     
     vary_params = dict()
-    vary_params['max_deg_monomials'] = np.arange(2, 11, 1, dtype = int)
+    vary_params['max_deg_monomials'] = np.arange(2, 21, 1, dtype = int)
     
-    experiment['exp_name'] = 'subsampling_RK_deg_2_11_ic_25'
+    experiment['exp_name'] = 'subsampling_RK_h_0_1_deg_2_21_ic_25'
     experiment['network_name'] = 'Lorenz_63'
     # Specify the script to use for the test.
     experiment['script'] = 'ngrc_rk_method'
@@ -947,7 +947,7 @@ def subsampling_rk_maximum_degree(exp = False):
     experiment['testing'] = True
     
     fixed_params = {'delay_dimension' : 1,
-                    'dt': 0.05,
+                    'dt': 0.1,
                     'ttrain': 100,
                     'ttest': 100,
                     'Nseeds': 25,
