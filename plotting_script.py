@@ -579,6 +579,93 @@ def fig_x_coord_rk_reconstr_time_lags():
                                  filename = experiment['exp_name'] 
                                  )
 # %%
+def fig_partial_measurements():
+    
+    '''
+    Figure contains the simulations of Euler and Runge Kutta from partial measurements
+    '''
+    
+    '''
+    Euler selection - for more details see method fig_x_coord_reconstr_time_lags
+    '''     
+    
+    # Dictionaries for saving the results.
+    res_dicts = dict()
+    
+    experiment = dict()
+    
+    vary_params = dict()
+    vary_params['time_skip'] = np.arange(1, 32, 1, dtype = int)
+    
+    experiment['exp_name'] = 'x-coord_reconstr_Time_lag_1-32_ic_25'
+    experiment['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_euler_method_index'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 3,
+                    'max_deg_monomials' : 5,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'index' : np.array([0])
+        }
+    
+    
+    L2 = lab(experiment, vary_params, fixed_params)
+    x_keys = 'time_skip'
+    
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'abs_psd_test']
+    
+    res_dicts['Euler'] = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    '''
+    RK selection - for more details see method fig_x_coord_reconstr_time_lags
+    '''
+    
+    experiment_rk = dict()
+    
+    vary_params_rk = dict()
+    vary_params_rk['time_skip'] = np.arange(1, 32, 1, dtype = int)
+    
+    experiment_rk['exp_name'] = 'x-coord_RK_deg_7_time_lag_1-72_ic_25'
+    
+    experiment_rk['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment_rk['script'] = 'ngrc_rk_method_index'
+    experiment_rk['dependencies'] = False
+    # Specify if we should perform testing
+    experiment_rk['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 3,
+                    'max_deg_monomials' : 7,
+                    'ttrain': 100,
+                    'ttest': 100,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'index' : np.array([0])
+        }
+    
+    
+    L_rk = lab(experiment_rk, vary_params_rk, fixed_params)
+    x_keys = 'time_skip'
+    
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'abs_psd_test']
+    
+    res_dicts['RK'] = L_rk.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    
+    tls.fig_partial_measurements(res_dicts, vary_params['time_skip'],
+                                 filename = 'x_coord')
+    
+# %%
 def fig_cond_num_chebyshev_poly_deg():
     #This script test the following experiment:
     '''

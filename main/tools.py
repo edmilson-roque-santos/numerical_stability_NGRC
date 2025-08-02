@@ -1621,21 +1621,31 @@ def fig_reg_solver(results_dict, x_axis, filename = None):
 def fig_x_coord_time_skip(res_dict, 
                           x_dict,
                           plot_dict = None,
-                          filename = None):
+                          filename = None,
+                          fig = None):
+    
+    nrows = 3
     
     if plot_dict is None:
         plot_dict = dict()
         plot_dict['color'] = list_colors[0]
+    
+    if fig is None:
+        fig_import = False
+    
+        if nrows > 1:
+            fig, ax = plt.subplots(nrows, 1, sharex= True, 
+                                   figsize = (5, 6), dpi = 300,
+                                   constrained_layout=True)
+        else:    
+            fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
         
-    nrows = 3#len(list(res_dict.keys()))
-    
-    if nrows > 1:
-        fig, ax = plt.subplots(nrows, 1, sharex= True, 
-                               figsize = (5, 6), dpi = 300,
-                               constrained_layout=True)
-    else:    
-        fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
-    
+    else:
+        fig_import = True
+        
+        if nrows > 1:
+            ax = fig.subplots(nrows, 1, sharex= True)
+        
     for id_key, key_metric in enumerate(res_dict.keys()):
         
         if key_metric == 'theta':
@@ -1701,7 +1711,7 @@ def fig_x_coord_time_skip(res_dict,
         if key_metric == 'theta':
             ax[id_ax].plot(x_dict, 
                     median,
-                    '-',
+                    '-o',
                     color = plot_dict['color'],
                     linewidth=1.1)
     
@@ -1728,7 +1738,7 @@ def fig_x_coord_time_skip(res_dict,
             
             ax2.plot(x_dict, 
                     median,
-                    '-',
+                    '-o',
                     color = plot_dict['color'],
                     linewidth=1.1)
     
@@ -1762,7 +1772,7 @@ def fig_x_coord_time_skip(res_dict,
                                 median[perc >= 0.5],
                                 yerr = error[:, perc >= 0.5],
                                 color = list_colors[0],
-                                fmt = '',
+                                fmt = 'o',
                                 capsize=3,
                                 ms = 1,
                                 alpha = 0.5)
@@ -1779,45 +1789,62 @@ def fig_x_coord_time_skip(res_dict,
             ax[id_ax].set_yscale(plot_dict['y_scale'])
             ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
     
+    
     # Colorbar
     sm = ScalarMappable(norm=norm, cmap=sns_colors)
     sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax[id_ax],
-                        label = r'Fraction of bounded NGRC models',
-                        location="bottom")
     
-    if filename == None:
-        plt.tight_layout()
-        plt.show()
-    else:
+    if not fig_import:
+        cbar = plt.colorbar(sm, ax=ax[id_ax],
+                            label = r'Fraction of bounded NGRC models',
+                            location="bottom")
         
-        folder = 'Figures/'
-        out_direc = os.path.join('', folder)
+    if fig_import:
+        return fig, sm
+    
+    else:
+        if filename == None:
+            plt.tight_layout()
+            plt.show()
+        else:
             
-        if os.path.isdir(out_direc) == False:
-            os.makedirs(out_direc)
-        filename = os.path.join(out_direc, filename)
-            
-        plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+            folder = 'Figures/'
+            out_direc = os.path.join('', folder)
+                
+            if os.path.isdir(out_direc) == False:
+                os.makedirs(out_direc)
+            filename = os.path.join(out_direc, filename)
+                
+            plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
 
 def fig_x_coord_rk_time_skip(res_dict, 
                              x_dict,
                              plot_dict = None,
-                             filename = None):
+                             filename = None,
+                             fig = None):
     
     if plot_dict is None:
         plot_dict = dict()
         plot_dict['color'] = list_colors[0]
         
-    nrows = 3#len(list(res_dict.keys()))
+    nrows = 3
     
-    if nrows > 1:
-        fig, ax = plt.subplots(nrows, 1, sharex= True, 
-                               figsize = (5, 6), dpi = 300,
-                               constrained_layout=True)
-    else:    
-        fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
+    if fig is None:
+        fig_import = False
     
+        if nrows > 1:
+            fig, ax = plt.subplots(nrows, 1, sharex= True, 
+                                   figsize = (5, 6), dpi = 300,
+                                   constrained_layout=True)
+        else:    
+            fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
+        
+    else:
+        fig_import = True
+        
+        if nrows > 1:
+            ax = fig.subplots(nrows, 1, sharex= True)
+        
     for id_key, key_metric in enumerate(res_dict.keys()):
         
         if key_metric == 'theta':
@@ -1883,7 +1910,7 @@ def fig_x_coord_rk_time_skip(res_dict,
         if key_metric == 'theta':
             ax[id_ax].plot(x_dict, 
                     median,
-                    '-',
+                    '-o',
                     color = plot_dict['color'],
                     linewidth=1.1)
     
@@ -1910,7 +1937,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             
             ax2.plot(x_dict, 
                     median,
-                    '-',
+                    '-o',
                     color = plot_dict['color'],
                     linewidth=1.1)
     
@@ -1944,7 +1971,7 @@ def fig_x_coord_rk_time_skip(res_dict,
                                 median[perc >= 0.5],
                                 yerr = error[:, perc >= 0.5],
                                 color = list_colors[0],
-                                fmt = '',
+                                fmt = 'o',
                                 capsize=3,
                                 ms = 1,
                                 alpha = 0.5)
@@ -1961,12 +1988,66 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax[id_ax].set_yscale(plot_dict['y_scale'])
             ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
     
-    # Colorbar
-    sm = ScalarMappable(norm=norm, cmap=sns_colors)
-    sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax[id_ax],
-                        label = r'Fraction of bounded NGRC models',
-                        location="bottom")
+    if not fig_import:
+        # Colorbar
+        sm = ScalarMappable(norm=norm, cmap=sns_colors)
+        sm.set_array([])
+        cbar = plt.colorbar(sm, ax=ax[id_ax],
+                            label = r'Fraction of bounded NGRC models',
+                            location="bottom")
+        
+    
+    if fig_import:
+        return fig 
+    
+    else:
+        if filename == None:
+            plt.tight_layout()
+            plt.show()
+        else:
+            
+            folder = 'Figures/'
+            out_direc = os.path.join('', folder)
+                
+            if os.path.isdir(out_direc) == False:
+                os.makedirs(out_direc)
+            filename = os.path.join(out_direc, filename)
+                
+            plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+
+def fig_partial_measurements(res_dicts, x_dict, filename = None):
+    
+    
+    fig = plt.figure(figsize=(10, 6), dpi = 300, layout="constrained")
+    
+    (fig1, fig2) = fig.subfigures(1, 2)
+    
+    
+    fig1, sm = fig_x_coord_time_skip(res_dicts['Euler'], 
+                                 x_dict,
+                                 plot_dict = None,
+                                 filename = None,
+                                 fig = fig1)
+    
+    fig1.suptitle(r'explicit Euler method')
+    
+    fig2 = fig_x_coord_rk_time_skip(res_dicts['RK'], 
+                                    x_dict,
+                                    plot_dict = None,
+                                    filename = None,
+                                    fig = fig2)
+        
+    fig2.suptitle(r'RK45 method')
+    
+    # 3. Create a new Axes for the colorbar using fig.add_axes()
+    # Coordinates are [left, bottom, width, height] in figure coordinates (0 to 1)
+    colorbar_axes_position = [0.25, -0.07, 0.5, 0.05] # Example: right side, tall and thin
+    cax = fig.add_axes(colorbar_axes_position)
+    
+    # 4. Create the colorbar, specifying the cax and orientation
+    plt.colorbar(sm, cax=cax, orientation='horizontal',
+                 label = 'Fraction of bounded NGRC models')
+    
     
     if filename == None:
         plt.tight_layout()
@@ -1981,6 +2062,8 @@ def fig_x_coord_rk_time_skip(res_dict,
         filename = os.path.join(out_direc, filename)
             
         plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+    
+    return 
 
 def ax_stats(array, x_axis, plot_dict, ax, positions):
     
@@ -2045,7 +2128,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['y_label'] = r'$\Delta$'
     plot_dict['x_scale'] = 'linear'
     plot_dict['y_scale'] = 'log'
-    plot_dict['y_lim'] = [1e4, 1e18]
+    plot_dict['y_lim'] = [1e-14, 1e8]
     plot_dict['x_label'] = r'$\beta$'
     plot_dict['legend'] = False
     plot_dict['label'] = ''
@@ -2062,7 +2145,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['y_label'] = r'$\kappa_{\beta}(\Psi)$'
     plot_dict['x_scale'] = 'linear'
     plot_dict['y_scale'] = 'log'
-    plot_dict['y_lim'] = [1e4, 1e18]
+    plot_dict['y_lim'] = [1e2, 1e10]
     plot_dict['x_label'] = ''
     plot_dict['legend'] = False
     plot_dict['error'] = False
