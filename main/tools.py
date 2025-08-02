@@ -1675,7 +1675,7 @@ def fig_x_coord_time_skip(res_dict,
             plot_dict['y_label'] = r'$VPT$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'linear'
-            plot_dict['y_lim'] = [-1e0, 12]
+            plot_dict['y_lim'] = [-1e0, 10]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
@@ -1687,7 +1687,7 @@ def fig_x_coord_time_skip(res_dict,
             plot_dict['y_label'] = r'$E$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-4, 5e0]
+            plot_dict['y_lim'] = [1e-3, 5e0]
             plot_dict['x_label'] = r'$\tau$'
             plot_dict['legend'] = False
             plot_dict['label'] = ''   
@@ -1874,7 +1874,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             plot_dict['y_label'] = r'$VPT$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'linear'
-            plot_dict['y_lim'] = [-1e0, 12]
+            plot_dict['y_lim'] = [-1e0, 10]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
@@ -1886,7 +1886,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             plot_dict['y_label'] = r'$E$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-4, 5e0]
+            plot_dict['y_lim'] = [1e-3, 5e0]
             plot_dict['x_label'] = r'$\tau$'
             plot_dict['legend'] = False
             plot_dict['label'] = ''   
@@ -2018,7 +2018,7 @@ def fig_x_coord_rk_time_skip(res_dict,
 def fig_partial_measurements(res_dicts, x_dict, filename = None):
     
     
-    fig = plt.figure(figsize=(10, 6), dpi = 300, layout="constrained")
+    fig = plt.figure(figsize=(10, 5), dpi = 300, layout="constrained")
     
     (fig1, fig2) = fig.subfigures(1, 2)
     
