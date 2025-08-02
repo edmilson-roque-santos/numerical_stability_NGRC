@@ -72,7 +72,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 parameters = dict()
 
 degree = 7
-parameters['exp_name'] = 'x_coord_reconstr_RK45'
+parameters['exp_name'] = 'x_coord_RK_LU'#'x_coord_reconstr_RK45'
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -205,7 +205,7 @@ tls.plot_testing(s_t_test, v_t_test, t_test,
 
 tls.fig_x_coord_reconstr(s_t_test, v_t_test, t_test, dt, scale = 1/0.9056,
                          transient_plot = int(15/(0.9056*dt)), nperseg=int(1/dt)*5,
-                         filename = None)#
+                         filename = None )#parameters['exp_name']
 
 # Compute comparison wrt to the original vector
 #c_matrix_true = get_true_coeff_Lorenz(params)
