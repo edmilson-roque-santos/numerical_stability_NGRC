@@ -890,5 +890,5 @@ def fig_subsampling_solvers():
     
     tls.fig_subsampling_solver(res_dict, 
                                x_axis = vary_params['max_deg_monomials'], 
-                               filename = 'subsampling_solvers')
+                               filename = 'subsampling_solvers') #'subsampling_solvers'
     

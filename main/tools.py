@@ -2207,18 +2207,18 @@ def fig_training_features_vs_reg(res_dict,
 
 
 def plot_fig_metrics_subsampling_solver(res_dict, 
-                                     x_axis,
-                                     ax = None,
-                                     plot_dict = None,
-                                     filename = None,
-                                     reference_value = False):
+                                         x_axis,
+                                         ax = None,
+                                         plot_dict = None,
+                                         filename = None,
+                                         plot_cond_number = False):
     
-    positions = np.linspace(1, x_axis.shape[0] + 5, x_axis.shape[0])
+    positions = x_axis #np.linspace(1, x_axis.shape[0] + 5, x_axis.shape[0])
     
     if plot_dict is None:
         plot_dict = dict()
         
-    nrows = len(list(res_dict.keys()))
+    nrows = 4#len(list(res_dict.keys()))
     
     if ax is None:
         if nrows > 1:
@@ -2228,15 +2228,29 @@ def plot_fig_metrics_subsampling_solver(res_dict,
     
     for id_key, key_metric in enumerate(res_dict.keys()):
         
-        if key_metric == 'sigvals':
-            plot_dict['y_label'] = r'$\kappa(\hat{\Psi})$'
+        if key_metric == 'theta':
+            plot_dict['y_label'] = r'$\theta_{\max}$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e4, 1e18]
+            plot_dict['y_lim'] = [1e-4, np.pi/2]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-                        
+            plot_dict['color'] = list_colors[0]
+            id_ax = 0
+            mask = False 
+            
+        if key_metric == 'sigvals':
+            plot_dict['y_label'] = r'$\kappa(\Psi)$'
+            plot_dict['x_scale'] = 'linear'
+            plot_dict['y_scale'] = 'log'
+            plot_dict['y_lim'] = [1e2, 1e14]
+            plot_dict['x_label'] = ''
+            plot_dict['legend'] = False
+            plot_dict['label'] = ''
+            plot_dict['color'] = list_colors[3]
+            mask = False 
+            
         if key_metric == 'VPT_test':
             plot_dict['y_label'] = r'$VPT$'
             plot_dict['x_scale'] = 'linear'
@@ -2245,7 +2259,10 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-                
+            plot_dict['color'] = list_colors[0]
+            id_ax = id_ax + 1 
+            mask_value = np.nan 
+            mask = True 
             
         if key_metric == 'zmax_test':
             plot_dict['y_label'] = r'Distance - Succ Max Map'
@@ -2255,7 +2272,11 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-                
+            plot_dict['color'] = list_colors[0]
+            id_ax = id_ax + 1
+            mask_value = np.nan 
+            mask = True 
+            
         if key_metric == 'abs_psd_test':
             plot_dict['y_label'] = r'$E$'
             plot_dict['x_scale'] = 'linear'
@@ -2263,30 +2284,82 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             plot_dict['y_lim'] = [1e-3, 1e1]
             plot_dict['x_label'] = r'$p$'
             plot_dict['legend'] = False
-            plot_dict['label'] = ''   
+            plot_dict['label'] = ''
+            plot_dict['color'] = list_colors[0]
+            id_ax = id_ax + 1
+            mask_value = np.nan 
+            mask = True 
+        
+            
+        optf_array = res_dict[key_metric][id_key]
+        if mask == True:
+            optf_array[optf_array < 0] = mask_value 
+        
+        # Mask the divergent data
+        finite_mask = np.isfinite(optf_array)
+        bounded_counts = finite_mask.sum(axis=1)
+        perc = bounded_counts/optf_array.shape[1]
+        
+        lower, median, upper  = np.array([np.nanquantile(optf_array, 0.25, axis = 1), 
+                                          np.nanquantile(optf_array, 0.5, axis = 1), 
+                                          np.nanquantile(optf_array, 0.75, axis = 1)])
+        
+        if key_metric == 'theta':
+            ax[id_ax].plot(x_axis, 
+                            median,
+                            '-o',
+                            color = plot_dict['color'],
+                            linewidth=1.1)
+            
+            ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
+            ax[id_ax].set_xscale(plot_dict['x_scale'])        
+            ax[id_ax].set_yscale(plot_dict['y_scale'])
+            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            
+        elif key_metric == 'sigvals':
+            ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
+            
+            ax2.plot(x_axis, 
+                    median,
+                    '-o',
+                    color = plot_dict['color'],
+                    linewidth=1.1)
+    
+            ax2.set_xscale(plot_dict['x_scale'])        
+            ax2.set_yscale(plot_dict['y_scale'])
+            ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
+            
+            labels = [1e1, 1e7, 1e13, 1e19]
+            ax2.set_yticks(labels, 
+                             labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
+    
+            if plot_cond_number:            
+                ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
                 
-        if nrows > 1:
-            ax[id_key] = plot_metric_box_plot(x_axis, 
-                                              res_dict[key_metric][id_key], 
-                                              plot_dict, 
-                                              ax = ax[id_key],
-                                              plot_panel = True,
-                                              positions = positions,
-                                              labels = x_axis)
-        
-            ax[id_key].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
-        
-            ax[id_key].fill_between(np.arange(6, 8.5, 0.01), 
-                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
-                                    color = list_colors[1], alpha = 0.40)
-            
         else:
-            ax = plot_metric_box_plot(x_axis, 
-                                      res_dict[key_metric], 
-                                      plot_dict, 
-                                      ax = ax,
-                                      plot_panel = True)
+                    
+            if nrows > 1:
+                ax[id_ax] = plot_metric_box_plot(x_axis, 
+                                                  res_dict[key_metric][id_key], 
+                                                  plot_dict, 
+                                                  ax = ax[id_ax],
+                                                  plot_panel = True,
+                                                  positions = positions,
+                                                  labels = x_axis)
             
+                ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
+            
+                ax[id_ax].fill_between(np.arange(5.5, 7.5, 0.01), 
+                                        plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                        color = list_colors[1], alpha = 0.40)
+                
+            else:
+                ax = plot_metric_box_plot(x_axis, 
+                                          res_dict[key_metric], 
+                                          plot_dict, 
+                                          ax = ax,
+                                          plot_panel = True)
+                
           
     if filename == None:
         return ax
@@ -2299,16 +2372,23 @@ def fig_subsampling_solver(results_dict, x_axis, filename = None):
     
     keys = list(results_dict.keys())
     
-    fig, ax = plt.subplots(3, 3, sharex=True,
-                           figsize=(10, 5), dpi=300, layout='constrained')
+    fig, ax = plt.subplots(4, 3, sharex=True,
+                           figsize=(13, 6), dpi=300, layout='constrained')
 
     
     for id_key, key in enumerate(keys):
         
-        ax[:, id_key] = plot_fig_metrics_subsampling_solver(results_dict[key], 
+        if key == 'LU':
+            ax[:, id_key] = plot_fig_metrics_subsampling_solver(results_dict[key], 
                                                             x_axis, ax[:, id_key], 
                                                             plot_dict = None,
-                                                            reference_value=True)
+                                                            plot_cond_number=True)
+            
+        else:
+    
+            ax[:, id_key] = plot_fig_metrics_subsampling_solver(results_dict[key], 
+                                                            x_axis, ax[:, id_key], 
+                                                            plot_dict = None)
         
         ax[0, id_key].set_title(fr'{key}')
         
