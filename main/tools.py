@@ -1655,11 +1655,10 @@ def fig_x_coord_time_skip(res_dict,
             plot_dict['y_label'] = r'$\theta_x$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-4, np.pi/2]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-            plot_dict['color'] = list_colors[0]
+            plot_dict['color'] = list_colors_gray[0]
             id_ax = 0
             mask = False 
             
@@ -1667,7 +1666,6 @@ def fig_x_coord_time_skip(res_dict,
             plot_dict['y_label'] = r'$\kappa(\Psi)$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e2, 1e14]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
@@ -1712,6 +1710,7 @@ def fig_x_coord_time_skip(res_dict,
                                           np.nanquantile(optf_array, 0.75, axis = 1)])
         
         if key_metric == 'theta':
+            plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
             ax[id_ax].plot(x_dict, 
                     median,
                     '-o',
@@ -1735,8 +1734,11 @@ def fig_x_coord_time_skip(res_dict,
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
             ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+            
             
         elif key_metric == 'sigvals':
+            plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
             ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
             
             ax2.plot(x_dict, 
@@ -1752,11 +1754,13 @@ def fig_x_coord_time_skip(res_dict,
             ax2.fill_between(x_dict, median, upper,
                                     color = plot_dict['color'], 
                                     alpha = 0.25)
-            ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
+            
+            #ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
             ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
             ax2.set_xscale(plot_dict['x_scale'])        
             ax2.set_yscale(plot_dict['y_scale'])
-            labels = [1e2, 1e7, 1e12, 1e17]
+            #ax2.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+            labels = [plot_dict['y_lim'][0], 1e7, 1e11, plot_dict['y_lim'][1]]
             ax2.set_yticks(labels, 
                              labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         else:
@@ -1764,6 +1768,11 @@ def fig_x_coord_time_skip(res_dict,
             sns_colors = sns.color_palette("Blues", as_cmap=True)
             norm = Normalize(vmin=0, vmax=1)
             colors = sns_colors(norm(perc))
+            
+            ax[id_ax].fill_between(np.arange(14, 17), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], 
+                                    alpha = 0.25)
             
             ax[id_ax].scatter(x_dict, median, color=colors)
             
@@ -1780,10 +1789,7 @@ def fig_x_coord_time_skip(res_dict,
                                 ms = 1,
                                 alpha = 0.5)
         
-            ax[id_ax].fill_between(np.arange(14, 17), 
-                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
-                                    color = list_colors[1], 
-                                    alpha = 0.25)
+            
             
             
             
@@ -1854,11 +1860,10 @@ def fig_x_coord_rk_time_skip(res_dict,
             plot_dict['y_label'] = r'$\theta_x$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-4, np.pi/2]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-            plot_dict['color'] = list_colors[0]
+            plot_dict['color'] = list_colors_gray[0]
             id_ax = 0
             mask = False 
             
@@ -1911,6 +1916,8 @@ def fig_x_coord_rk_time_skip(res_dict,
                                           np.nanquantile(optf_array, 0.75, axis = 1)])
         
         if key_metric == 'theta':
+            plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
+            
             ax[id_ax].plot(x_dict, 
                     median,
                     '-o',
@@ -1933,9 +1940,12 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
-            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
-            
+            #ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+
         elif key_metric == 'sigvals':
+            plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
+
             ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
             
             ax2.plot(x_dict, 
@@ -1955,7 +1965,9 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
             ax2.set_xscale(plot_dict['x_scale'])        
             ax2.set_yscale(plot_dict['y_scale'])
-            labels = [1e2, 1e7, 1e12, 1e17]
+            #ax2.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+
+            labels = [plot_dict['y_lim'][0], 1e9, 1e13, plot_dict['y_lim'][1]]
             ax2.set_yticks(labels, 
                              labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         else:
@@ -1963,6 +1975,11 @@ def fig_x_coord_rk_time_skip(res_dict,
             sns_colors = sns.color_palette("Blues", as_cmap=True)
             norm = Normalize(vmin=0, vmax=1)
             colors = sns_colors(norm(perc))
+            
+            ax[id_ax].fill_between(np.arange(14, 17), 
+                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
+                                    color = list_colors[1], 
+                                    alpha = 0.25)
             
             ax[id_ax].scatter(x_dict, median, color=colors)
             
@@ -1978,18 +1995,11 @@ def fig_x_coord_rk_time_skip(res_dict,
                                 capsize=3,
                                 ms = 1,
                                 alpha = 0.5)
-        
-            ax[id_ax].fill_between(np.arange(14, 17), 
-                                    plot_dict['y_lim'][0], plot_dict['y_lim'][1],
-                                    color = list_colors[1], 
-                                    alpha = 0.25)
-            
-            
             
             ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
-            ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            #ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
     
     if not fig_import:
         # Colorbar
@@ -2041,7 +2051,7 @@ def fig_trade_off(res_dict,
         plot_dict['x_label'] = ''
         plot_dict['legend'] = False
         plot_dict['label'] = ''
-        plot_dict['color'] = list_colors[0]
+        plot_dict['color'] = list_colors_gray[0]
         id_ax = 0
         mask = False 
             
@@ -2166,7 +2176,7 @@ def fig_partial_measurements(res_dicts, x_dict, filename = None):
     
     
     if filename == None:
-        plt.tight_layout()
+#        plt.tight_layout()
         plt.show()
     else:
         

@@ -663,7 +663,7 @@ def fig_partial_measurements():
     
     
     tls.fig_partial_measurements(res_dicts, vary_params['time_skip'],
-                                 filename = 'x_coord')
+                                 filename = 'x_coord')# 
     
 # %%
 def fig_cond_num_chebyshev_poly_deg():
