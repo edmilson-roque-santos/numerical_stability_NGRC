@@ -2294,7 +2294,7 @@ def fig_training_features_vs_reg(res_dict,
     
     # Plot the Cholesky maximum thetas
     key_metric = 'theta_cho'
-    plot_dict['color'] = list_colors[1]
+    plot_dict['color'] = list_colors_gray[0]
     plot_dict['label'] = r'CHO'
     plot_dict['marker'] = list_markers[0]
     
@@ -2304,7 +2304,7 @@ def fig_training_features_vs_reg(res_dict,
     
     # Plot the SVD maximum thetas
     key_metric = 'theta_svd'
-    plot_dict['color'] = list_colors[2]
+    plot_dict['color'] = list_colors_gray[2]
     plot_dict['label'] = r'SVD'
     plot_dict['marker'] = list_markers[1]
     
@@ -2316,7 +2316,7 @@ def fig_training_features_vs_reg(res_dict,
     
     # Plot the LU maximum thetas
     key_metric = 'theta_lu'
-    plot_dict['color'] = list_colors[4]
+    plot_dict['color'] = list_colors_gray[4]
     plot_dict['label'] = r'LU'
     plot_dict['marker'] = list_markers[2]
     
@@ -2361,11 +2361,10 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             plot_dict['y_label'] = r'$\theta_{\max}$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-4, np.pi/2]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
-            plot_dict['color'] = list_colors[0]
+            plot_dict['color'] = list_colors_gray[0]
             id_ax = 0
             mask = False 
             
@@ -2373,7 +2372,6 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             plot_dict['y_label'] = r'$\kappa(\Psi)$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e2, 1e14]
             plot_dict['x_label'] = ''
             plot_dict['legend'] = False
             plot_dict['label'] = ''
@@ -2434,6 +2432,7 @@ def plot_fig_metrics_subsampling_solver(res_dict,
                                           np.nanquantile(optf_array, 0.75, axis = 1)])
         
         if key_metric == 'theta':
+            plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
             ax[id_ax].plot(x_axis, 
                             median,
                             '-o',
@@ -2444,10 +2443,11 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
             ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
             
         elif key_metric == 'sigvals':
             ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
-            
+            plot_dict['y_lim'] = [1e2, 1e14]
             ax2.plot(x_axis, 
                     median,
                     '-o',
@@ -2458,11 +2458,13 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             ax2.set_yscale(plot_dict['y_scale'])
             ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
             
-            labels = [1e1, 1e7, 1e13, 1e19]
-            ax2.set_yticks(labels, 
-                             labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
-    
-            if plot_cond_number:            
+            ax2.set_yticks([])
+            
+            if plot_cond_number:
+                labels = [1e1, 1e7, 1e13, 1e19]
+                ax2.set_yticks(labels, 
+                                 labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
+        
                 ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
                 
         else:
@@ -2502,7 +2504,7 @@ def fig_subsampling_solver(results_dict, x_axis, filename = None):
     keys = list(results_dict.keys())
     
     fig, ax = plt.subplots(4, 3, sharex=True,
-                           figsize=(13, 6), dpi=300, layout='constrained')
+                           figsize=(13, 7), dpi=300, layout='constrained')
 
     
     for id_key, key in enumerate(keys):
@@ -2525,7 +2527,8 @@ def fig_subsampling_solver(results_dict, x_axis, filename = None):
             ax[0, id_key].set_ylabel(r'')
             ax[1, id_key].set_ylabel(r'')
             ax[2, id_key].set_ylabel(r'')
-        
+            ax[3, id_key].set_ylabel(r'')
+            
     if filename == None:
         plt.tight_layout()
         plt.show()

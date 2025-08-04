@@ -512,7 +512,7 @@ def fig_training_features():
                                      x_axis = reg_params,
                                      ax = None,
                                      plot_dict = None,
-                                     filename = 'Figures/training_features_k_2')#
+                                     filename = 'Figures/training_features_k_2')#'Figures/training_features_k_2'
     
     
     return res_dicts
@@ -890,5 +890,5 @@ def fig_subsampling_solvers():
     
     tls.fig_subsampling_solver(res_dict, 
                                x_axis = vary_params['max_deg_monomials'], 
-                               filename = 'subsampling_solvers') #'subsampling_solvers'
+                               filename = 'subsampling_solvers') #
     
