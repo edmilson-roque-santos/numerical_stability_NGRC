@@ -470,7 +470,7 @@ def fig_training_features():
     Varying different regularizer parameters.
     
     '''    
-    reg_params = np.array([1e-15, 1e-13, 1e-12, 1e-10, 1e-8, 1e-6, 1e-4, 1e-2])
+    reg_params = np.geomspace(1e-15, 1e-2, 30)
     
     experiment = dict()
     
@@ -478,7 +478,7 @@ def fig_training_features():
     
     vary_params['reg_params'] = reg_params.copy()
     
-    experiment['exp_name'] = 'training_features_reg_0_1'
+    experiment['exp_name'] = 'training_features_reg_0_1_30_points'
     experiment['network_name'] = 'Lorenz_63'
     experiment['dependencies'] = False
     # Specify the script to use for the test.
@@ -512,7 +512,7 @@ def fig_training_features():
                                      x_axis = reg_params,
                                      ax = None,
                                      plot_dict = None,
-                                     filename = 'Figures/training_features_k_2')
+                                     filename = 'Figures/training_features_k_2')#
     
     
     return res_dicts

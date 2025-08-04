@@ -2187,15 +2187,15 @@ def ax_stats(array, x_axis, plot_dict, ax, positions):
                                       np.quantile(array, 0.5, axis = 1), 
                                       np.quantile(array, 0.75, axis = 1)])
 
-    ax.plot(positions, 
-            median,
-            '-o',
-            label = plot_dict['label'],
-            color = plot_dict['color'],
-            linewidth=1.0,
-            alpha = plot_dict['alpha'],
-            markersize=4)
-
+    if not plot_dict['error']:
+        ax.plot(positions, 
+                median,
+                '-o',
+                label = plot_dict['label'],
+                color = plot_dict['color'],
+                linewidth=1.0,
+                alpha = plot_dict['alpha'],
+                markersize=4)
 
     if plot_dict['error']:
         error = np.zeros((2, x_axis.shape[0]))
@@ -2206,22 +2206,26 @@ def ax_stats(array, x_axis, plot_dict, ax, positions):
         uplims = np.zeros_like(lolims, dtype=bool)
     
         ax.errorbar(positions, 
-                       median,
-                       yerr = error,
-                       lolims=lolims,
-                       uplims=uplims,
-                       color = plot_dict['color'],
-                       fmt = list_markers[0],
-                       capsize=3,
-                       ms = 8)
+                    median,
+                    label=plot_dict['label'],
+                    yerr = error,
+                    lolims=lolims,
+                    uplims=uplims,
+                    color = plot_dict['color'],
+                    fmt = plot_dict['marker'],
+                    capsize=3,
+                    marker = plot_dict['marker'],
+                    ms = 4)
 
     ax.set_xlabel(r'{}'.format(plot_dict['x_label']))
     ax.set_xscale(plot_dict['x_scale'])        
     ax.set_yscale(plot_dict['y_scale'])
     ax.set_ylabel(r'{}'.format(plot_dict['y_label']))
-
-    labels = np.array([fr'$10^{{{int(np.log10(val))}}}$' for val in x_axis])
-    ax.set_xticks(positions, 
+    ax.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+    
+    indices = [0, 10, 20, 29]
+    labels = np.array([fr'$10^{{{int(np.log10(val))}}}$' for val in x_axis[indices]])
+    ax.set_xticks(positions[indices], 
                   labels = labels) 
     if plot_dict['legend']:
         ax.legend(loc = 8)
@@ -2232,54 +2236,57 @@ def fig_training_features_vs_reg(res_dict,
                                  plot_dict = None,
                                  filename = None):
     
-    positions = np.arange(1, x_axis.shape[0] + 1, 1, dtype = int)
+    positions = x_axis #np.arange(1, x_axis.shape[0] + 1, 1, dtype = int)
     
     if plot_dict is None:
         plot_dict = dict()
         
     if ax is None:
-        fig, ax = plt.subplots(2, 1, sharex= True, figsize = (5, 6), dpi = 300)
+        fig, ax = plt.subplots(2, 1, sharex= True, figsize = (4, 5), dpi = 300)
         
     #Plotting the difference between solution vectors
     plot_dict['y_label'] = r'$\Delta$'
-    plot_dict['x_scale'] = 'linear'
+    plot_dict['x_scale'] = 'log'
     plot_dict['y_scale'] = 'log'
-    plot_dict['y_lim'] = [1e-14, 1e8]
     plot_dict['x_label'] = r'$\beta$'
     plot_dict['legend'] = False
     plot_dict['label'] = ''
+    plot_dict['error'] = True
+    plot_dict['marker'] = list_markers[0]
+    plot_dict['color'] = list_colors[0]
     
     key_metric = 'diff_sol_vec'
-    ax[1] = plot_metric_box_plot(x_axis, 
-                              res_dict[key_metric], 
-                              plot_dict, 
-                              ax = ax[1],
-                              plot_panel = True)
+    array = res_dict[key_metric]
+    plot_dict['y_lim'] = [np.min(array)/10, 2*np.max(array)]
+    ax_stats(array, x_axis, plot_dict, ax[1], positions)
     
     #Plotting the condition number
     key_metric = 'sigvals'
     plot_dict['y_label'] = r'$\kappa_{\beta}(\Psi)$'
-    plot_dict['x_scale'] = 'linear'
+    plot_dict['x_scale'] = 'log'
     plot_dict['y_scale'] = 'log'
-    plot_dict['y_lim'] = [1e2, 1e10]
     plot_dict['x_label'] = ''
     plot_dict['legend'] = False
     plot_dict['error'] = False
     plot_dict['label'] = ''
     plot_dict['color'] = list_colors[3]
-    plot_dict['alpha'] = 0.7 
+    plot_dict['alpha'] = 0.5 
     
     ax2 = ax[0].twinx()  # instantiate a second Axes that shares the same x-axis
     array = res_dict[key_metric]
+    plot_dict['y_lim'] = [np.min(array)/2, 2*np.max(array)]
+
     ax_stats(array, x_axis, plot_dict, ax2, positions)
     ax2.set_ylabel(plot_dict['y_label'], color=plot_dict['color'])
     ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
+    labels = [1e1, 1e3, 1e5, 1e7]
+    ax2.set_yticks(labels, 
+                     labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
     
     #Plotting the maximum over thetas
     plot_dict['y_label'] = r'$\theta_{\max}$'
-    plot_dict['x_scale'] = 'linear'
+    plot_dict['x_scale'] = 'log'
     plot_dict['y_scale'] = 'log'
-    plot_dict['y_lim'] = [1e4, 1e18]
     plot_dict['x_label'] = ''
     plot_dict['legend'] = True
     plot_dict['error'] = True
@@ -2289,16 +2296,21 @@ def fig_training_features_vs_reg(res_dict,
     key_metric = 'theta_cho'
     plot_dict['color'] = list_colors[1]
     plot_dict['label'] = r'CHO'
+    plot_dict['marker'] = list_markers[0]
     
     array = res_dict[key_metric]
+    plot_dict['y_lim'] = [np.min(array), np.max(array)]
     ax_stats(array, x_axis, plot_dict, ax[0], positions)
     
     # Plot the SVD maximum thetas
     key_metric = 'theta_svd'
     plot_dict['color'] = list_colors[2]
     plot_dict['label'] = r'SVD'
+    plot_dict['marker'] = list_markers[1]
     
     array = res_dict[key_metric]
+    plot_dict['y_lim'] = [np.min([np.min(array), plot_dict['y_lim'][0]]), 
+                          np.max([np.max(array), plot_dict['y_lim'][1]])]
     ax_stats(array, x_axis, plot_dict, ax[0], positions)
     
     
@@ -2306,8 +2318,12 @@ def fig_training_features_vs_reg(res_dict,
     key_metric = 'theta_lu'
     plot_dict['color'] = list_colors[4]
     plot_dict['label'] = r'LU'
+    plot_dict['marker'] = list_markers[2]
     
     array = res_dict[key_metric]
+    plot_dict['y_lim'] = [np.min([np.min(array), plot_dict['y_lim'][0]]), 
+                          np.max([np.max(array), plot_dict['y_lim'][1]])]
+    plot_dict['y_lim'] = [plot_dict['y_lim'][0]/10, 2*plot_dict['y_lim'][1]]
     ax_stats(array, x_axis, plot_dict, ax[0], positions)
     
     if filename == None:

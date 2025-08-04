@@ -618,15 +618,15 @@ def training_features_reg_test(exp = False):
     
     '''    
     
-    reg_params = np.array([0, 1e-15, 1e-13, 1e-12, 1e-10, 1e-8, 1e-6, 1e-4, 1e-2])
-    
+    reg_params = np.geomspace(1e-15, 1e-2, 30)
+     
     experiment = dict()
     
     vary_params = dict()
     
     vary_params['reg_params'] = reg_params.copy()
     
-    experiment['exp_name'] = 'training_features_reg_0_1'
+    experiment['exp_name'] = 'training_features_reg_0_1_30_points'
     experiment['network_name'] = 'Lorenz_63'
     experiment['dependencies'] = False
     # Specify the script to use for the test.
