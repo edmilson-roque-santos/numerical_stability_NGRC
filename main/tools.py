@@ -2280,7 +2280,7 @@ def fig_training_features_vs_reg(res_dict,
     plot_dict['error'] = False
     plot_dict['label'] = ''
     plot_dict['color'] = list_colors[3]
-    plot_dict['alpha'] = 0.5 
+    plot_dict['alpha'] = 1.0 
     
     ax2 = ax[0].twinx()  # instantiate a second Axes that shares the same x-axis
     array = res_dict[key_metric]
@@ -2453,7 +2453,7 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
             ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
-            ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
+            #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
             
         elif key_metric == 'sigvals':
             ax2 = ax[id_ax].twinx()  # instantiate a second Axes that shares the same x-axis
@@ -2488,7 +2488,7 @@ def plot_fig_metrics_subsampling_solver(res_dict,
                                                   positions = positions,
                                                   labels = x_axis)
             
-                ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
+                #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
             
                 ax[id_ax].fill_between(np.arange(5.5, 7.5, 0.01), 
                                         plot_dict['y_lim'][0], plot_dict['y_lim'][1],
