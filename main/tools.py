@@ -323,7 +323,7 @@ def plot_2d(x_t_true, z_t_true,
             labels = None):
 
     if labels is None:
-        labels = [r'$x$', r'$z$']
+        labels = [r'$x$', r'$y$', r'$z$']
     
     if ax is None:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3), dpi=300, sharey=True)
@@ -333,7 +333,7 @@ def plot_2d(x_t_true, z_t_true,
     ax1.plot(x_t_true[transient_plot:], z_t_true[transient_plot:],
              color=colors[0])
     ax1.set_xlabel(labels[0])
-    ax1.set_ylabel(labels[1])
+    ax1.set_ylabel(labels[2])
     ax1.set_title(titles[0])
 
     ax2.plot(x_t[transient_plot:], z_t[transient_plot:],

@@ -204,12 +204,18 @@ if v_t_test.shape[0] == 3:
     filename = params['exp_name']
     
     title_names = [r'$V_1$-component', r'$V_2$-component', r'$I$-component']
-    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt), filename = None,
-                     title = title_names) #filename+'_top_stats'
+    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*50, 
+                     filename = filename+'_top_stats',
+                     title = title_names) #
+    labels = [r'$V_1$', r'$V_2$', r'$I$']
+    bounds = [[-1, 1], [-1, 1], [-1, 1]]
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(7.8125*25/(dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 7.8125,
-                    transient_plot = int(7.8125*15/(dt)), filename = None) #filename+'_compare'
+                    transient_plot = int(7.8125*15/(dt)), 
+                    filename = filename+'_compare',
+                    labels = labels,
+                    bounds = bounds) #filename+'_compare'
     
 if parameters['use_orthonormal']:
     W_out_t = RC.params['R'] @ W_out.T/dt        

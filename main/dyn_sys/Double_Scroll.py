@@ -50,6 +50,7 @@ def Double_Scroll_system(t, state, r1, r2, r4, alpha, ir):
     
     dv = v1 - v2
     g = (dv/r2) + 2*ir*np.sinh(alpha*dv)
+    
     dv1 = (v1/r1) - g    
     dv2 = g - i
     di = v2 - r4*i
