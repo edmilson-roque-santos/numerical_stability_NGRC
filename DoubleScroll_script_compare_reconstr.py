@@ -1,9 +1,9 @@
 """
-Lorenz System
+Double Scroll
 Comparison approximate vector field and NGRC reconstruction.
-Numerical scheme is the explicit forward Euler method. 
+Numerical scheme is the Runge Kutta 4(5) method.
 
-Created on Mon Mar  3 14:28:46 2025
+Created on Tue Aug  5 08:44:17 2025
 
 @author: Edmilson Roque dos Santos
 """
@@ -18,12 +18,12 @@ from main.ng_reservoir import ng_reservoir as ng
 import main.tools as tls
 from main.model_selection import ridge, OMP, loss, NRMSE, valid_prediction_time, l2_zmax_map, kl_div_psd
 from main.signal import signal as sgn
-from main.dyn_sys.Lorenz import parametric_Lorenz, spy_Lorenz, Lorenz_system, get_true_coeff_Lorenz
+from main.dyn_sys.Double_Scroll import parametric_DoubleScroll
 from main.base_polynomial import pre_settings as pre_set 
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.01
+dt = 0.25
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -31,8 +31,8 @@ time_skip = 1
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
-ttrain = 5
-ttest = 100
+ttrain = 100
+ttest = 2500
 seed = 1
 #============================##============================##============================#
 #Generate synthetic data
@@ -42,13 +42,13 @@ ts_sgn = sgn(dt, ttrain, ttest,
              trans_t = 100, 
              normalize = True,
              seed = seed,
-             method = 'Euler',
+             method = 'RK45',
              dt_fine = 0.01)
 
 folder = 'data/input_data/'
-ts_filename = folder+'Lorenz_ts_Euler_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, 0.01, seed)
-ts_sgn.generate_signal(parametric_Lorenz, 
-                       np.array([10.0, 8.0/3.0, 28]),
+ts_filename = folder+'DoubleScroll_ts_RK45_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, 0.01, seed)
+ts_sgn.generate_signal(parametric_DoubleScroll, 
+                       np.array([1.2, 3.44, 0.193, 11.6, 2.25*1e-5]),
                        ts_filename,
                        subsampling=True)
 
@@ -59,9 +59,9 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 2
-parameters['exp_name'] = 'Euler_plot_fig1'#'computing thetas '#
-parameters['network_name'] = 'Lorenz63'
+degree = 3
+parameters['exp_name'] = 'computing thetas '
+parameters['network_name'] = 'DoubleScroll'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
 parameters['max_deg_monomials'] = degree
@@ -189,29 +189,26 @@ if predict_one_time:
     s_t_test_, v_t_test_, t_test = tls.select_bounded(X_t_test.T, v_t_test_, t_test)
     tls.plot_testing(s_t_test_, v_t_test_, t_test, 
                      transient_plot = -1, 
-                     scale = 1/0.9056, 
+                     scale = 7.8125, 
                      fig = None)
 
 v_t_test = RC.gen_autonomous_state(W_out, hist.T, t_test)
 s_t_test, v_t_test, t_test = tls.select_bounded(X_t_test.T, v_t_test, t_test)
 tls.plot_testing(s_t_test, v_t_test, t_test, 
                  transient_plot = -1, 
-                 scale = 1/0.9056, 
+                 scale = 7.8125, 
                  fig = None)
 
 if v_t_test.shape[0] == 3:
     tls.plot_2d_all_combinations(s_t_test, v_t_test)
     filename = params['exp_name']
     
-    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = None) #filename+'_top_stats'
-    tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(25/(0.9056*dt))], 
+    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*50, filename = None) #filename+'_top_stats'
+    tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(7.8125*25/(dt))], 
                     s_t_test, v_t_test, t_test,
-                    scale = 1/0.9056,
-                    transient_plot = int(15/(0.9056*dt)), filename = None) #filename+'_compare'
+                    scale = 7.8125,
+                    transient_plot = int(7.8125*15/(dt)), filename = None) #filename+'_compare'
     
-# Compute comparison wrt to the original vector
-c_matrix_true = get_true_coeff_Lorenz(params)
-
 if parameters['use_orthonormal']:
     W_out_t = RC.params['R'] @ W_out.T/dt        
 else:

@@ -1,6 +1,12 @@
 """
 Create time series of a parametric Double Scroll system.
+Introduced in: 
+A. Chang, J. C. Bienfang, G. M. Hall, J. R. Gardner,
+and D. J. Gauthier, Chaos: An Interdisciplinary Journal
+of Nonlinear Science 8, 782 (1998)
 
+Parameters from:
+D. J. Gauthier, E. Bollt, A. Griffith, and W. A. S. Barbosa, Nat Commun 12, 5564 (2021)
 
 Created on Mon Aug  4 19:08:28 2025
 
