@@ -126,7 +126,7 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
         
         ax.plot(t/scale, y_true[0, :lgth], label = r'True', color = colors[0])
         ax.plot(t/scale, y_pred[0, :lgth], '--',  
-                label = r'Reservoir', color = colors[1], alpha = 1.0)
+                label = r'Reconstructed', color = colors[1], alpha = 1.0)
         
         ax.set_xlabel(r'Lyapunov Time')
         ax.set_ylabel(r'$x$')
@@ -145,7 +145,7 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
         for id_row in range(nrows):
             ax[id_row].plot(t/scale, y_true[id_row, :lgth], label = r'True', color = colors[0])
             ax[id_row].plot(t/scale, y_pred[id_row, :lgth], '--',  
-                    label = r'Reservoir', color = colors[1], alpha = 1.0)
+                    label = r'Reconstructed', color = colors[1], alpha = 1.0)
             
             try:
                 ax[id_row].set_ylabel(labels[id_row])
@@ -198,7 +198,7 @@ def plot_testing(y_true, y_pred, t,
         
         ax.plot(t[:transient_plot]/scale, y_true[0, :transient_plot], label = r'True', color = colors[0])
         ax.plot(t[:transient_plot]/scale, y_pred[0, :transient_plot], '--',  
-                label = r'Reservoir', color = colors[1], alpha = 1.0)
+                label = r'Reconstructed', color = colors[1], alpha = 1.0)
         
         ax.set_xlabel(r'Lyapunov Time')
         ax.set_ylabel(r'$x$')
@@ -224,7 +224,7 @@ def plot_testing(y_true, y_pred, t,
                             label = r'True', color = colors[0])
             ax[id_row].plot(t[:transient_plot:]/scale, y_pred[id_row, :transient_plot], 
                             '--', 
-                            label = r'Reservoir', color = colors[1], alpha = 1.0)
+                            label = r'Reconstructed', color = colors[1], alpha = 1.0)
             
             try:
                 ax[id_row].set_ylabel(labels[id_row])

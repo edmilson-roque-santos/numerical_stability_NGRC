@@ -1,4 +1,5 @@
 """
+Lorenz System
 Comparison approximate vector field and NGRC reconstruction.
 Numerical scheme is the explicit forward Euler method. 
 
@@ -31,7 +32,7 @@ time_skip = 1
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 5
-ttest = 1
+ttest = 100
 seed = 1
 #============================##============================##============================#
 #Generate synthetic data
@@ -58,8 +59,8 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 20
-parameters['exp_name'] = 'computing thetas '#'Euler_plot_fig1'#
+degree = 2
+parameters['exp_name'] = 'Euler_plot_fig1'#'computing thetas '#
 parameters['network_name'] = 'Lorenz63'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -202,11 +203,11 @@ if v_t_test.shape[0] == 3:
     tls.plot_2d_all_combinations(s_t_test, v_t_test)
     filename = params['exp_name']
     
-    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = None) #filename+'_top_stats'
+    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = filename+'_top_stats') #
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(25/(0.9056*dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 1/0.9056,
-                    transient_plot = int(15/(0.9056*dt)), filename = None) #filename+'_compare'
+                    transient_plot = int(15/(0.9056*dt)), filename = filename+'_compare') #
     
 # Compute comparison wrt to the original vector
 c_matrix_true = get_true_coeff_Lorenz(params)
