@@ -204,10 +204,12 @@ if v_t_test.shape[0] == 3:
     filename = params['exp_name']
     
     tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*5, filename = None) #filename+'_top_stats'
+    bounds = [[-1, 1], [-1, 1], [0, 1]]
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(25/(0.9056*dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 1/0.9056,
-                    transient_plot = int(15/(0.9056*dt)), filename = None) #filename+'_compare'
+                    transient_plot = int(15/(0.9056*dt)), filename = None,
+                    bounds = bounds) #filename+'_compare'
     
 # Compute comparison wrt to the original vector
 c_matrix_true = get_true_coeff_Lorenz(params)

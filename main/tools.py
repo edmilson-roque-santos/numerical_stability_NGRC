@@ -93,7 +93,8 @@ def maximum_over_z(s_t):
 # Plotting methods
 #============================##============================##============================##============================#
 
-def plot_training(y_true, y_pred, t, scale = 1, fig = None):
+def plot_training(y_true, y_pred, t, scale = 1, fig = None, labels = None,
+                  bounds = None):
     '''
     Plot training phase for during time t
 
@@ -122,6 +123,9 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
     
     if nrows == 1:
         
+        if labels is None:
+            labels = [r'$x$']
+            
         ax = fig.subplots(nrows=nrows)
         
         ax.plot(t/scale, y_true[0, :lgth], label = r'True', color = colors[0])
@@ -129,7 +133,13 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
                 label = r'Reconstructed', color = colors[1], alpha = 1.0)
         
         ax.set_xlabel(r'Lyapunov Time')
-        ax.set_ylabel(r'$x$')
+        ax.set_ylabel(labels[0])
+        
+        if bounds is None:
+            max_y, min_y = np.max(y_true[0, :lgth]), np.min(y_true[0, :lgth])
+            ax.set_ylim(min_y, max_y)
+        else:
+            ax.set_ylim(bounds[0], bounds[1])
         
         ax.set_title(r'Training phase')
         
@@ -137,10 +147,13 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
         
         
     else:
+        if labels is None:
+            labels = [r'$x$', r'$y$', r'$z$']
+            
         ax = fig.subplots(nrows=nrows, sharex = True)
        
         ax[0].set_title(r'Training phase')        
-        labels = [r'$x$', r'$y$', r'$z$']
+        
         
         for id_row in range(nrows):
             ax[id_row].plot(t/scale, y_true[id_row, :lgth], label = r'True', color = colors[0])
@@ -152,6 +165,13 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
             except:
                 ax[id_row].set_ylabel(r'$x_{}$'.format(id_row))
             
+            if bounds is None:
+                max_y, min_y = np.max(y_true[id_row, :lgth]), np.min(y_true[id_row, :lgth])
+                ax[id_row].set_ylim(min_y, max_y)
+            else:
+                ax[id_row].set_ylim(bounds[id_row][0], bounds[id_row][1])
+                
+                
             if id_row == 0:
                 ax[id_row].legend(loc=5)
                 
@@ -160,7 +180,9 @@ def plot_training(y_true, y_pred, t, scale = 1, fig = None):
 def plot_testing(y_true, y_pred, t, 
                  transient_plot = -1, 
                  scale = 1, 
-                 fig = None):
+                 fig = None,
+                 labels = None,
+                 bounds = None):
     '''
     Plot testing phase for during time t
     
@@ -190,6 +212,9 @@ def plot_testing(y_true, y_pred, t,
     lgth = np.min([y_true.shape[1], y_pred.shape[1], t.shape[0]])
     
     if nrows == 1:
+        if labels is None:
+            labels = [r'$x$']
+            
         y_true = y_true[:lgth]
         y_pred = y_pred[:lgth]
         t = t[-lgth:]
@@ -201,19 +226,25 @@ def plot_testing(y_true, y_pred, t,
                 label = r'Reconstructed', color = colors[1], alpha = 1.0)
         
         ax.set_xlabel(r'Lyapunov Time')
-        ax.set_ylabel(r'$x$')
+        ax.set_ylabel(labels[0])
+        
+        if bounds is None:
+            max_y, min_y = np.max(y_true[0, :transient_plot]), np.min(y_true[0, :transient_plot])
+            ax.set_ylim(min_y, max_y)
+        else:
+            ax.set_ylim(bounds[0], bounds[1])
         
         ax.set_title(r'Testing phase')
         
         ax.legend(loc=0)
         
     else:
+        if labels is None:
+            labels = [r'$x$', r'$y$', r'$z$']
+            
         y_true = y_true[:, :lgth]
         y_pred = y_pred[:, :lgth]
         t = t[-lgth:]
-        
-        
-        labels = [r'$x$', r'$y$', r'$z$']
         
         ax = fig.subplots(nrows=nrows, sharex = True)
             
@@ -231,8 +262,12 @@ def plot_testing(y_true, y_pred, t,
             except:
                 ax[id_row].set_ylabel(r'$x_{}$'.format(id_row))
             
-            max_y, min_y = np.max(y_true[id_row, :transient_plot]), np.min(y_true[id_row, :transient_plot])
-            ax[id_row].set_ylim(min_y, max_y)
+            if bounds is None:
+                max_y, min_y = np.max(y_true[id_row, :transient_plot]), np.min(y_true[id_row, :transient_plot])
+                ax[id_row].set_ylim(min_y, max_y)
+            else:
+                ax[id_row].set_ylim(bounds[id_row][0], bounds[id_row][1])
+            
             if id_row == 0:
                 ax[id_row].legend(loc=5)      
                 
@@ -284,8 +319,12 @@ def plot_2d(x_t_true, z_t_true,
             transient_plot,
             ax = None,
             filename = None, 
-            titles = [r'True attractor', r'Reconstructed attractor']):
+            titles = [r'True attractor', r'Reconstructed attractor'],
+            labels = None):
 
+    if labels is None:
+        labels = [r'$x$', r'$z$']
+    
     if ax is None:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3), dpi=300, sharey=True)
     else:
@@ -293,13 +332,13 @@ def plot_2d(x_t_true, z_t_true,
         
     ax1.plot(x_t_true[transient_plot:], z_t_true[transient_plot:],
              color=colors[0])
-    ax1.set_xlabel(r'$x$')
-    ax1.set_ylabel(r"$z$")
+    ax1.set_xlabel(labels[0])
+    ax1.set_ylabel(labels[1])
     ax1.set_title(titles[0])
 
     ax2.plot(x_t[transient_plot:], z_t[transient_plot:],
              color=colors[1])
-    ax2.set_xlabel(r'$x$')
+    ax2.set_xlabel(labels[0])
     
     ax2.set_title(titles[1])
     
@@ -343,7 +382,9 @@ def plot_2d_all_combinations(X_t, u_out_t, transient_plot = 100):
 def fig_compare(x_t_train, u_t_train, t_train,
                 x_t_test, u_t_test, t_test,
                 scale = 1,
-                transient_plot = 100, filename = None):
+                transient_plot = 100, filename = None,
+                labels = None,
+                bounds = None):
     
     
     fig = plt.figure(figsize=(8, 7), dpi = 300)
@@ -365,15 +406,21 @@ def fig_compare(x_t_train, u_t_train, t_train,
                                 "wspace": 0.1
                                 })
     
-    plot_2d(x_t_true, z_t_true, x_t, z_t, pair, transient_plot, ax = [ax1, ax2])
+    plot_2d(x_t_true, z_t_true, x_t, z_t, pair, transient_plot, ax = [ax1, ax2],
+            labels=labels)
     
     # Plot training and testing 
     
     (fig_train, fig_test) = fig2.subfigures(1, 2)
     
-    plot_training(x_t_train, u_t_train, t_train, scale = scale, fig = fig_train)
+    plot_training(x_t_train, u_t_train, t_train, scale = scale, fig = fig_train,
+                  labels = labels,
+                  bounds = bounds)
     
-    fig_test = plot_testing(x_t_test, u_t_test, t_test, transient_plot, scale = scale, fig = fig_test)
+    fig_test = plot_testing(x_t_test, u_t_test, t_test, transient_plot, 
+                            scale = scale, fig = fig_test,
+                            labels = labels,
+                            bounds = bounds)
     
     if filename == None:
         plt.show()
@@ -609,9 +656,12 @@ def plot_succ_max(s_t, v_t, degree_int = 3, Bspline = False,
 
 
 def plot_psd(X_t, u_t, dt, 
-             nperseg = None, fig = None, labels = [r'True', r'Reconstructed']):
+             nperseg = None, fig = None, labels = [r'True', r'Reconstructed'],
+             title_names = None):
     
-    title_names = [r'x-component', r'y-component', r'z-component']
+    if title_names is None:
+        title_names = [r'x-component', r'y-component', r'z-component']
+        
     ncols = X_t.shape[0]
     
     if fig is None:
@@ -665,7 +715,8 @@ def plot_psd(X_t, u_t, dt,
             ax.set_xlabel(r'Frequency')
             ax.set_ylim(1e-7,1e1)
     
-def fig_top_stat(X_t, u_t, dt, nperseg, filename = None):
+def fig_top_stat(X_t, u_t, dt, nperseg, filename = None, 
+                 title = None):
     
     fig = plt.figure(figsize=(10, 4), dpi = 300)
     
@@ -674,7 +725,8 @@ def fig_top_stat(X_t, u_t, dt, nperseg, filename = None):
     plot_succ_max(X_t, u_t, fig = fig1)
         
     # Plot training and testing 
-    plot_psd(X_t, u_t, dt, nperseg = nperseg, fig = fig2)
+    plot_psd(X_t, u_t, dt, nperseg = nperseg, fig = fig2,
+             title_names = title)
     fig2.suptitle('Power spectrum density comparison')
     
     if filename == None:

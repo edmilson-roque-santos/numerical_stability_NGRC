@@ -59,8 +59,8 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 6
-parameters['exp_name'] = 'computing thetas '
+degree = 3
+parameters['exp_name'] = 'DoubleScroll_reconstr'
 parameters['network_name'] = 'DoubleScroll'
 parameters['Nseeds'] = 1
 parameters['random_seed'] = 1
@@ -203,7 +203,9 @@ if v_t_test.shape[0] == 3:
     tls.plot_2d_all_combinations(s_t_test, v_t_test)
     filename = params['exp_name']
     
-    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt), filename = None) #filename+'_top_stats'
+    title_names = [r'$V_1$-component', r'$V_2$-component', r'$I$-component']
+    tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt), filename = None,
+                     title = title_names) #filename+'_top_stats'
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(7.8125*25/(dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 7.8125,
