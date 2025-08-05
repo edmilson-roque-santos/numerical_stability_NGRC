@@ -2489,7 +2489,7 @@ def plot_fig_metrics_subsampling_solver(res_dict,
                                                   labels = x_axis)
             
                 #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
-            
+                plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
                 ax[id_ax].fill_between(np.arange(5.5, 7.5, 0.01), 
                                         plot_dict['y_lim'][0], plot_dict['y_lim'][1],
                                         color = list_colors[1], alpha = 0.40)
