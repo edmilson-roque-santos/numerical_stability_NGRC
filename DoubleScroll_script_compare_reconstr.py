@@ -23,7 +23,7 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.01
+dt = 0.25
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -32,7 +32,7 @@ time_skip = 1
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 100
-ttest = 800
+ttest = 1500
 seed = 1
 #============================##============================##============================#
 #Generate synthetic data
@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 3
+degree = 5
 parameters['exp_name'] = 'DoubleScroll_reconstr'
 parameters['network_name'] = 'DoubleScroll'
 parameters['Nseeds'] = 1
@@ -205,15 +205,15 @@ if v_t_test.shape[0] == 3:
     
     title_names = [r'$V_1$-component', r'$V_2$-component', r'$I$-component']
     tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*50, 
-                     filename = filename+'_top_stats',
-                     title = title_names) #
+                     filename = None,
+                     title = title_names) #filename+'_top_stats'
     labels = [r'$V_1$', r'$V_2$', r'$I$']
     bounds = [[-1, 1], [-1, 1], [-1, 1]]
     tls.fig_compare(s_t_train.T, v_t_train, t_train[:int(7.8125*25/(dt))], 
                     s_t_test, v_t_test, t_test,
                     scale = 7.8125,
                     transient_plot = int(7.8125*15/(dt)), 
-                    filename = filename+'_compare',
+                    filename = None,
                     labels = labels,
                     bounds = bounds) #filename+'_compare'
     

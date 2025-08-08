@@ -19,9 +19,6 @@ import numpy as np
 from numpy.random import default_rng
 import os
 from scipy.integrate import solve_ivp
-import sympy as spy
-
-from main.base_polynomial import poly_library as polb
 
 
 max_time_total = 1000

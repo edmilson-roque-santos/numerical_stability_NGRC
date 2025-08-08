@@ -1032,7 +1032,124 @@ def subsampling_rk_maximum_degree(exp = False):
 
         return exps_dict, exps_dict1, exps_dict2
     
+# %%
+def subsampling_rk_maximum_degree_DoubleScroll(exp = False):
     
+    #This script test the following experiment:
+    '''
+    Consider DoubleScroll system
+    Consider the Runge-Kutta 4 (5) method
+    Sparse sampling: original 0.01 but sampling 0.05
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 10000 
+    Ntest = 1
+    and fine step size $\Delta t = 0.01$.
+    and step size $\Delta t = 0.25$.
+    Fix the number of delay dimensions to k = 1.
+    regularizer parameter = 0
+    Variations:
+        the maximum degree of polynomial
+        
+    '''    
+    
+    #=========================================================================#
+    # Compute the solution using Cholesky factorization in Normal equation
+    #=========================================================================#
+    experiment = dict()
+    
+    vary_params = dict()
+    
+    vary_params['max_deg_monomials'] = np.arange(2, 10, 1, dtype = int)
+    
+    experiment['exp_name'] = 'DS_CHO_max_deg_2_10'
+    experiment['network_name'] = 'DoubleScroll'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_rk_method_DoubleScroll'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 1,
+                    'dt': 0.25,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'cholesky'
+        }
+    
+    
+    #=========================================================================#
+    # Compute the solution using SVD for least square
+    #=========================================================================#
+    
+    experiment1 = dict()
+    
+    vary_params1 = dict()
+    
+    vary_params1['max_deg_monomials'] = np.arange(2, 10, 1, dtype = int)
+    
+    experiment1['exp_name'] = 'DS_SVD_max_deg_2_10'
+    experiment1['network_name'] = 'DoubleScroll'
+    # Specify the script to use for the test.
+    experiment1['script'] = 'ngrc_rk_method_DoubleScroll'
+    experiment1['dependencies'] = False
+    # Specify if we should perform testing
+    experiment1['testing'] = True
+    
+    fixed_params1 = {'delay_dimension' : 1,
+                    'dt': 0.25,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'SVD'
+        }
+    
+    #=========================================================================#
+    # Compute the solution using inverse formula - LU factorization
+    #=========================================================================#
+    
+    experiment2 = dict()
+    
+    vary_params2 = dict()
+    
+    vary_params2['max_deg_monomials'] = np.arange(2, 10, 1, dtype = int)
+    
+    experiment2['exp_name'] = 'DS_LU_max_deg_2_10'
+    experiment2['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment2['script'] = 'ngrc_rk_method_DoubleScroll'
+    experiment2['dependencies'] = False
+    # Specify if we should perform testing
+    experiment2['testing'] = True
+    
+    fixed_params2 = {'delay_dimension' : 1,
+                    'dt': 0.25,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'LU'
+        }
+    
+    if exp:
+        S = sim(experiment, vary_params, fixed_params)
+        exps_dict = S.run()
+        
+        S1 = sim(experiment1, vary_params1, fixed_params1)
+        exps_dict1 = S1.run()
+        
+        S2 = sim(experiment2, vary_params2, fixed_params2)
+        exps_dict2 = S2.run()
+
+        return exps_dict, exps_dict1, exps_dict2
 
 
 

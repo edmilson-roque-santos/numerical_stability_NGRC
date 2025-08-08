@@ -1,1 +1,1 @@
-from . import Lorenz, SL, Lotka_Volterra, Lorenz_96
+from . import Lorenz, SL, Lotka_Volterra, Lorenz_96, Double_Scroll
