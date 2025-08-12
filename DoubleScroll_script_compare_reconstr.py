@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 5
+degree = 6
 parameters['exp_name'] = 'DoubleScroll_reconstr'
 parameters['network_name'] = 'DoubleScroll'
 parameters['Nseeds'] = 1

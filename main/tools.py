@@ -2402,14 +2402,16 @@ def plot_fig_metrics_subsampling_solver(res_dict,
                                          ax = None,
                                          plot_dict = None,
                                          filename = None,
-                                         plot_cond_number = False):
+                                         plot_cond_number = False,
+                                         labels_cond = [1e1, 1e7, 1e13, 1e19],
+                                         limits_fill = [5.5, 7.5]):
     
     positions = x_axis #np.linspace(1, x_axis.shape[0] + 5, x_axis.shape[0])
     
     if plot_dict is None:
         plot_dict = dict()
         
-    nrows = 4#len(list(res_dict.keys()))
+    nrows = 3#len(list(res_dict.keys()))
     
     if ax is None:
         if nrows > 1:
@@ -2453,19 +2455,6 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             mask_value = np.nan 
             mask = True 
             
-        if key_metric == 'zmax_test':
-            plot_dict['y_label'] = r'Distance - Succ Max Map'
-            plot_dict['x_scale'] = 'linear'
-            plot_dict['y_scale'] = 'log'
-            plot_dict['y_lim'] = [1e-2, 1e2]
-            plot_dict['x_label'] = ''
-            plot_dict['legend'] = False
-            plot_dict['label'] = ''
-            plot_dict['color'] = list_colors[0]
-            id_ax = id_ax + 1
-            mask_value = np.nan 
-            mask = True 
-            
         if key_metric == 'abs_psd_test':
             plot_dict['y_label'] = r'$E$'
             plot_dict['x_scale'] = 'linear'
@@ -2483,7 +2472,7 @@ def plot_fig_metrics_subsampling_solver(res_dict,
         optf_array = res_dict[key_metric][id_key]
         if mask == True:
             optf_array[optf_array < 0] = mask_value 
-        
+            optf_array[np.isinf(optf_array)] = mask_value
         # Mask the divergent data
         finite_mask = np.isfinite(optf_array)
         bounded_counts = finite_mask.sum(axis=1)
@@ -2519,11 +2508,10 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             ax2.set_xscale(plot_dict['x_scale'])        
             ax2.set_yscale(plot_dict['y_scale'])
             ax2.tick_params(axis='y', labelcolor=plot_dict['color'])
-            
             ax2.set_yticks([])
             
             if plot_cond_number:
-                labels = [1e1, 1e7, 1e13, 1e19]
+                labels = labels_cond
                 ax2.set_yticks(labels, 
                                  labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         
@@ -2542,7 +2530,8 @@ def plot_fig_metrics_subsampling_solver(res_dict,
             
                 #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])                
                 plot_dict['y_lim'] = [np.nanmin(optf_array), np.nanmax(optf_array)]
-                ax[id_ax].fill_between(np.arange(5.5, 7.5, 0.01), 
+                
+                ax[id_ax].fill_between(np.arange(limits_fill[0], limits_fill[1], 0.01), 
                                         plot_dict['y_lim'][0], plot_dict['y_lim'][1],
                                         color = list_colors[1], alpha = 0.40)
                 
@@ -2590,6 +2579,55 @@ def fig_subsampling_solver(results_dict, x_axis, filename = None):
             ax[1, id_key].set_ylabel(r'')
             ax[2, id_key].set_ylabel(r'')
             ax[3, id_key].set_ylabel(r'')
+            
+    if filename == None:
+        plt.tight_layout()
+        plt.show()
+    else:
+        
+        folder = 'Figures/'
+        out_direc = os.path.join('', folder)
+            
+        if os.path.isdir(out_direc) == False:
+            os.makedirs(out_direc)
+        filename = os.path.join(out_direc, filename)
+            
+        plt.savefig(filename+".pdf", format = 'pdf', bbox_inches='tight')
+
+    return     
+
+def fig_subsampling_solver_DoubleScroll(results_dict, x_axis, filename = None):
+
+    
+    keys = list(results_dict.keys())
+    
+    fig, ax = plt.subplots(3, 3, sharex=True,
+                           figsize=(12, 6), dpi=300, layout='constrained')
+
+    
+    for id_key, key in enumerate(keys):
+        
+        if key == 'LU':
+            ax[:, id_key] = plot_fig_metrics_subsampling_solver(results_dict[key], 
+                                                            x_axis, ax[:, id_key], 
+                                                            plot_dict = None,
+                                                            plot_cond_number=True,
+                                                            labels_cond=[1e2, 1e4, 1e6, 1e8],
+                                                            limits_fill = [2.5, 4.5])
+            
+        else:
+    
+            ax[:, id_key] = plot_fig_metrics_subsampling_solver(results_dict[key], 
+                                                            x_axis, ax[:, id_key], 
+                                                            plot_dict = None,
+                                                            limits_fill = [2.5, 4.5])
+        
+        ax[0, id_key].set_title(fr'{key}')
+        
+        if id_key >= 1:
+            ax[0, id_key].set_ylabel(r'')
+            ax[1, id_key].set_ylabel(r'')
+            ax[2, id_key].set_ylabel(r'')
             
     if filename == None:
         plt.tight_layout()

@@ -866,12 +866,16 @@ class simulation():
             # Compute different error measures whenever the autonomous NGRC dynamics is bounded.
             
             if exp_dict['is_bounded']:
+                tau_lyap = 7.8125
                 #During training 
                 exp_dict['NRMSE_train'] = NRMSE(s_t_train.T, exp_dict['v_t_train'])
         
-                exp_dict['VPT_train'] = valid_prediction_time(s_t_train.T, exp_dict['v_t_train'], dt)
+                exp_dict['VPT_train'] = valid_prediction_time(s_t_train.T, 
+                                                              exp_dict['v_t_train'], 
+                                                              dt,
+                                                              scale = tau_lyap)
         
-                tau_lyap = 7.8125
+                
                 t_loss_train = np.linspace(0, t_train[-1]-tau_lyap, 50)
                 exp_dict['Loss_train'] = loss(s_t_train.T, exp_dict['v_t_train'], t_vec = t_loss_train, 
                                               tau = tau_lyap, 
@@ -887,7 +891,10 @@ class simulation():
                 #During testing 
                 exp_dict['NRMSE_test'] = NRMSE(s_t_test, exp_dict['v_out_test'])
         
-                exp_dict['VPT_test'] = valid_prediction_time(s_t_test, exp_dict['v_out_test'], dt)
+                exp_dict['VPT_test'] = valid_prediction_time(s_t_test, 
+                                                             exp_dict['v_out_test'], 
+                                                             dt,
+                                                             scale = tau_lyap)
         
                 t_loss_test = np.linspace(0, t_test[-1]-tau_lyap, 50)
                 exp_dict['Loss_test'] = loss(s_t_test, exp_dict['v_out_test'], t_vec = t_loss_test, 

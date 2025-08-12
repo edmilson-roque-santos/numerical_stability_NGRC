@@ -891,4 +891,130 @@ def fig_subsampling_solvers():
     tls.fig_subsampling_solver(res_dict, 
                                x_axis = vary_params['max_deg_monomials'], 
                                filename = 'subsampling_solvers') #
+
+def fig_subsampling_solvers_DoubleScroll():
     
+    res_dict = dict()
+    list_metrics = ['theta', 'sigvals', 'VPT_test', 'abs_psd_test']
+    
+    x_keys = 'max_deg_monomials'
+    
+    #This script test the following experiment:
+    '''
+    Consider DoubleScroll system
+    Consider the Runge-Kutta 4 (5) method
+    Sparse sampling: original 0.01 but sampling 0.05
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 10000 
+    Ntest = 1
+    and fine step size $\Delta t = 0.01$.
+    and step size $\Delta t = 0.25$.
+    Fix the number of delay dimensions to k = 1.
+    regularizer parameter = 0
+    Variations:
+        the maximum degree of polynomial
+        
+    '''    
+    
+    #=========================================================================#
+    # Compute the solution using Cholesky factorization in Normal equation
+    #=========================================================================#
+    experiment = dict()
+    
+    vary_params = dict()
+    
+    vary_params['max_deg_monomials'] = np.arange(2, 8, 1, dtype = int)
+    
+    experiment['exp_name'] = 'DS_CHO_max_deg_2_10'
+    experiment['network_name'] = 'DoubleScroll'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_rk_method_DoubleScroll'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'delay_dimension' : 1,
+                    'dt': 0.25,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'cholesky'
+        }
+    
+    
+    L = lab(experiment, vary_params, fixed_params)
+
+    res_dict['Cholesky'] = L.metrics_time_skip(list_metrics, x_keys = x_keys)
+
+    #=========================================================================#
+    # Compute the solution using SVD for least square
+    #=========================================================================#
+    
+    experiment1 = dict()
+    
+    vary_params1 = dict()
+    
+    vary_params1['max_deg_monomials'] = np.arange(2, 8, 1, dtype = int)
+    
+    experiment1['exp_name'] = 'DS_SVD_max_deg_2_10'
+    experiment1['network_name'] = 'DoubleScroll'
+    # Specify the script to use for the test.
+    experiment1['script'] = 'ngrc_rk_method_DoubleScroll'
+    experiment1['dependencies'] = False
+    # Specify if we should perform testing
+    experiment1['testing'] = True
+    
+    fixed_params1 = {'delay_dimension' : 1,
+                    'dt': 0.25,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'SVD'
+        }
+    
+    L1 = lab(experiment1, vary_params1, fixed_params1)
+    
+    res_dict['SVD'] = L1.metrics_time_skip(list_metrics, x_keys = x_keys)
+    
+    #=========================================================================#
+    # Compute the solution using inverse formula - LU factorization
+    #=========================================================================#
+    
+    experiment2 = dict()
+    
+    vary_params2 = dict()
+    
+    vary_params2['max_deg_monomials'] = np.arange(2, 8, 1, dtype = int)
+    
+    experiment2['exp_name'] = 'DS_LU_max_deg_2_10'
+    experiment2['network_name'] = 'Lorenz_63'
+    # Specify the script to use for the test.
+    experiment2['script'] = 'ngrc_rk_method_DoubleScroll'
+    experiment2['dependencies'] = False
+    # Specify if we should perform testing
+    experiment2['testing'] = True
+    
+    fixed_params2 = {'delay_dimension' : 1,
+                    'dt': 0.25,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'solver_ridge' : 'LU'
+        }
+    
+    L2 = lab(experiment2, vary_params2, fixed_params2)
+    
+    res_dict['LU'] = L2.metrics_time_skip(list_metrics, x_keys = x_keys)
+
+    tls.fig_subsampling_solver_DoubleScroll(res_dict, 
+                                            x_axis = vary_params['max_deg_monomials'], 
+                                            filename = "DoubleScroll_subsampling_solvers") #
