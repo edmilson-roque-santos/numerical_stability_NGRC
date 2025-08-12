@@ -35,7 +35,7 @@ time_skip = 1
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
-ttrain = 100
+ttrain = 200
 ttest = 1
 seed = 1
 #Method of numerical integrating the differential equation
@@ -80,6 +80,7 @@ if plot_auto_correlation:
                   id_xlim=50,
                   fit = True)
 
+#%%
 #============================##============================##============================#
 #Mutual information for the input time series     
     
@@ -166,7 +167,76 @@ plot_MI_minimum = True
 if plot_MI_minimum:
     index = [0, 1, 2]
     plot_MI(X_t_train[:, index], index = index, id_xlim = 50)
+#%%
+#Embedding dimension for the input time series
+# Code based on Dr. Ozge Canli to compute the embedding dimension
+# using false nearest neighbors.
+def data_construction(data, de_max, Td):
+    # data: input
+    # de_max = max_embedding time delay
+    # Td = time delay obtained by mutual information time lag
+    """
 
+    Args:
+        data:
+        de_max: max_embedding dimension
+        Td:  time delay obtained by computing argument of first minimum of mutual information
+
+    Returns: reconstructed phase space
+
+    """
+    n, p = data.shape  # n number of points, p is dimension
+    M = n - (de_max - 1) * Td
+    const_output = np.zeros([M, de_max])  # new reconstructed data shape
+    for i in range(de_max):
+        const_output[:, i] = data[np.arange(0, M) + i * Td].ravel()  # different functions from ravels
+    return const_output
+
+def fnn_array(data, de_max, Td, Ra=15):
+    fnn_empty = np.zeros([de_max, 1])
+    for i in range(de_max):
+        co = data_construction(data, i + 1, Td)
+        n, p = co.shape
+        M = n - ((i + 1) * Td)
+        co = co[:M]
+        tree = ss.cKDTree(co)
+        dist, ind = tree.query(co, 2, p=2)  # nearest neighbor k=2, in euclid distance(p=2)
+        dist_one = dist[:M, 1]
+        ind_one = ind[:M, 1]
+        # todo: check that if part is same inside and outside
+        if (i == 0):
+            #Rd = dist_one
+            difference = np.abs(data[np.arange(0, M) + (i + 1) * Td] - data[ind_one + (i + 1) * Td])
+            fnn_empty[i, :] = np.count_nonzero((difference.T / dist_one) > Ra)
+        else:
+            difference = np.abs(data[np.arange(0, M) + (i + 1) * Td] - data[ind_one + (i + 1) * Td])
+            fnn_empty[i, :] = np.count_nonzero((difference.T / dist_one) > Ra)
+
+        #percentage = Rd / difference
+
+    return fnn_empty, (fnn_empty / fnn_empty[0, :])
+
+   
+def plot_fnn(X_t, de_max = 10, time_lag = 15):
+    result, percentage = fnn_array(X_t, de_max, time_lag)
+    print(result, percentage)
+    
+    plt.figure(dpi = 300)
+    plt.plot(np.arange(10)+1, percentage*100, 'bo-')
+    plt.xlabel(r'Embedding dimension')
+    plt.ylabel(r'Percentage of FNN')
+    plt.title(r"False Nearest Neighbors of Double Scroll attractor", fontsize=12)
+    plt.xticks([i for i in range(0, 11)])
+    plt.yticks([i*10 for i in range(0, 11)])
+    #plt.savefig('fnnlorenz.pdf')
+    plt.show()
+
+fnn_analysis = True
+
+if fnn_analysis:
+    index = [0]
+    plot_fnn(X_t_train[:, index], time_lag = 13)
+#%%
 #============================##============================##============================#
 def compute_angles_td(X_t, params, ts_max = 250):
     
@@ -253,6 +323,7 @@ def plot_angles(angles_ttau, angles_cross, ts_vec):
     #ax[1].set_ylabel(r"$\theta_{\mathbf{A} \mathbf{B}}$, principal angles")
 
     return
+#%%
 #============================##============================##============================#
 ############# Construct the parameters dictionary ##############
 parameters = dict()
