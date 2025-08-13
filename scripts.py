@@ -1151,7 +1151,74 @@ def subsampling_rk_maximum_degree_DoubleScroll(exp = False):
 
         return exps_dict, exps_dict1, exps_dict2
 
-
+# %%
+def x_coord_rk_DoubleScroll_metrics_time_lag(exp = False):
+    
+    #This script test the following experiment:
+    '''
+    Consider Double Scroll
+    Consider the Runge-Kutta 4 (5) method
+    Select only the x-coordinate
+    Consider 25 different initial conditions. 
+    Fix the number of data points to Ntrain = 5000 
+    Ntest = 1
+    and the step size $\Delta t = 0.01$.
+    Fix the number of delay dimensions to k = 2.
+    Fix the maximum degree of polynomial
+    Fix the x-variable only
+    regularizer parameter = 0
+    Let us consider two variations:
+        different time skips
+        
+    '''    
+    
+    experiment = dict()
+    
+    vary_params = dict()
+    vary_params['time_skip'] = np.arange(1, 31, 1, dtype = int)
+    
+    experiment['exp_name'] = 'x_coord_DS_RK_deg_5_time_lag_1-31_ic_25'
+    experiment['network_name'] = 'DoubleScroll'
+    # Specify the script to use for the test.
+    experiment['script'] = 'ngrc_rk_method_DoubleScroll_index'
+    experiment['dependencies'] = False
+    # Specify if we should perform testing
+    experiment['testing'] = True
+    
+    fixed_params = {'dt': 0.25,
+                    'delay_dimension' : 3,
+                    'max_deg_monomials' : 5,
+                    'ttrain': 100,
+                    'ttest': 1500,
+                    'Nseeds': 25,
+                    'reg_params' : 0,
+                    'normalize_ts' : True,
+                    'normalize_cols' : False,
+                    'index' : np.array([0])
+        }
+    
+    if exp:
+        S = sim(experiment, vary_params, fixed_params)
+        exps_dict = S.run()
+    else:
+        L = lab(experiment, vary_params, fixed_params)
+        x_keys = 'time_skip'
+        
+        list_metrics = ['sigvals']#, 'VPT_test', 'zmax_test', 'abs_psd_test'
+        
+        res_dict = L.metrics_time_skip(list_metrics, x_keys = x_keys)
+        
+        x_axis = vary_params[x_keys]
+        #tls.plot_fig_metrics_time_skip(res_dict, x_axis, 
+        #                               filename = experiment['exp_name']+'metric_time_skip',
+        #                               reference_value = True)
+        
+        list_metrics = ['sigvals']
+        L.plot_fig_metrics_time_skip(list_metrics, x_keys = x_keys,
+                                     filename = None)        
+        
+        exps_dict = L.exp_dict
+    return exps_dict 
 
 
 

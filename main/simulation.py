@@ -924,6 +924,242 @@ class simulation():
             exp_dict['script_params'] = params
                 
         return exp_dict
+
+#%%
+    def ngrc_rk_method_DoubleScroll_index(self, params):
+        '''
+        To train and test performance of a NGRC for the given parameters.
+        It creates dynamic time series generation using Runge-Kutta 4 (5) method.
+        Index refers to which component to be
+        measured from the original dynamical system.
+        
+        Parameters
+        ----------
+        params : dict
+            Parameters.
+    
+        Returns
+        -------
+        exp_dict : dictionary
+            W_out : numpy array
+                Readout matrix 
+            v_t_train : numpy array 
+                Training NGRC trajectory for plotting training.
+            is_bounded : boolean
+                Check if the reconstructed dynamics is bounded.
+            s_t_test : numpy array
+                True trajectory within testing phase.
+            v_out_drive : numpy array
+                Reservoir output within testing phase.
+            t_train : numpy array
+                Time span evaluated within training phase.
+            t_test : numpy array
+                Time span evaluated within testing phase.
+            sigvals : numpy array 
+                Singular values of the library matrix evaluated on the training trajectory.
+                
+            results with different measures during training and testing - below {} corresponds to train,test:
+              
+            NRMSE_{} : normalized root mean square error
+            VPT_{} : valid prediction time
+            Loss_{} : loss
+            abs_psd_train_{} : Kullback Leibler divergence between the power spectrum density
+            zmax_{} : computing distance between the z-max map.
+            
+        '''
+        #Time step - sampling
+        dt = params['dt']
+        dt_fine = params['dt_fine']
+        #Delayed coordinates and time skip
+        delay_dimension = params['delay_dimension']
+        #Time skip between time points
+        time_skip = params['time_skip']
+        #Warm up of the NGRC
+        warmup = (params['delay_dimension'] - 1)*params['time_skip']
+        #Training and testing data
+        ttrain = params['ttrain']
+        ttest = params['ttest']
+        #Random seed identifier
+        seed = params['random_seed']
+        #============================##============================##============================#
+        #Generate synthetic data
+        ts_sgn = sgn(dt, ttrain, ttest, 
+                     delay_dimension, 
+                     time_skip,                                  
+                     trans_t = 100, 
+                     normalize = params['normalize_ts'],
+                     seed = seed,
+                     method = 'RK45',
+                     dt_fine = params['dt_fine'])
+        
+        folder = 'data/input_data/'
+        ts_filename = folder+'DoubleScroll_ts_RK_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, 
+                                                                dt_fine, 
+                                                                seed)
+        ts_sgn.generate_signal(parametric_DoubleScroll, 
+                               np.array([1.2, 3.44, 0.193, 11.6, 2.25*1e-5]),
+                               ts_filename,
+                               subsampling=True)
+    
+        index = params['index']
+        X_t_train, X_t_test = ts_sgn.X_t_train[:, params['index']], ts_sgn.X_t_test[:, params['index']]
+        u_t_train, s_t_train = ts_sgn.u_t_train[:, params['index']], ts_sgn.s_t_train[:, params['index']]
+        t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
+        #============================##============================##============================#
+        ############# Construct the parameters dictionary ##############
+        reconstr_params = dict()
+    
+        reconstr_params['exp_name'] = params['exp_name']
+        reconstr_params['network_name'] = params['network_name']
+        reconstr_params['max_deg_monomials'] = params['max_deg_monomials']
+        
+        reconstr_params['use_canonical'] = params['use_canonical']
+        reconstr_params['use_orthonormal'] = params['use_orthonormal']
+        reconstr_params['single_density'] = False
+        reconstr_params['use_chebyshev'] = params['use_chebyshev']
+    
+        reconstr_params['lower_bound'] = np.min(X_t_train)
+        reconstr_params['upper_bound'] = np.max(X_t_train)
+    
+        reconstr_params['X_time_series_data'] =  X_t_train
+        reconstr_params['length_of_time_series'] = X_t_train.shape[0]
+        reconstr_params['delay_dimension'] = delay_dimension
+        reconstr_params['time_skip'] = time_skip
+        reconstr_params['number_of_vertices'] = delay_dimension*X_t_train.shape[1]
+    
+        if params['use_orthonormal']:
+            out_dir_ortho_folder = 'orth_data/orth_{}_{}_{}_{}_{}_{}_{}_{}.txt'.format(reconstr_params['exp_name'],
+                                                                            reconstr_params['random_seed'],
+                                                                            reconstr_params['max_deg_monomials'],
+                                                                            dt,
+                                                                            delay_dimension,
+                                                                            time_skip,
+                                                                            ttrain,
+                                                                            ttest)
+            
+            output_orthnormfunc_filename = out_dir_ortho_folder
+    
+            if not os.path.isfile(output_orthnormfunc_filename):
+                reconstr_params['orthnorm_func_filename'] = output_orthnormfunc_filename
+                reconstr_params['orthnormfunc'] = pre_set.create_orthnormfunc_kde(reconstr_params, 
+                                                                         save_orthnormfunc = True)
+            if os.path.isfile(output_orthnormfunc_filename):
+                reconstr_params['orthnorm_func_filename'] = output_orthnormfunc_filename
+                      
+            reconstr_params['build_from_reduced_basis'] = False
+    
+        ## Training phase
+        RC = ng(reconstr_params, 
+                delay = delay_dimension, 
+                time_skip = time_skip,
+                ind_term = True)
+        R = RC.run(X_t_train.T)
+        reconstr_params = RC.params
+        reg_param = params['reg_params']
+    
+        S = R @ R.T
+        s = LA.svd(R.T, lapack_driver='gesvd', compute_uv=False)
+    
+        #Readout matrix calculation
+        W_out = ridge(s_t_train.T - u_t_train.T, R, reg_param = reg_param,
+                      solver = params['solver_ridge'])
+        
+        if reconstr_params['use_orthonormal']:
+            M = s_t_train.shape[0]
+            W_out = W_out/np.sqrt(M)
+    
+        if reconstr_params['normalize_cols']:
+            W_out = W_out/reconstr_params['norm_column']
+    
+        v_t_train = u_t_train.T + np.sqrt(R.shape[1])*W_out @ R
+        # Dictionary associated with one specific experiment
+        exp_dict = dict()
+        exp_dict['W_out'] = W_out.T
+                
+        #Computes the closeness of fit
+        y = s_t_train.T - u_t_train.T
+        theta = np.arcsin(LA.norm(y - np.sqrt(R.shape[1])*W_out @ R, axis = 1)/LA.norm(y, axis = 1))
+        exp_dict['theta'] = theta
+        
+        # Import the singular values of the matrix $R$
+        exp_dict['sigvals'] = s
+    
+        if self.experiment['testing']:
+            #============================##============================##============================#
+            ## Testing phase
+            hist = X_t_train[-(warmup + 1):, :].copy()
+    
+            v_t_test = RC.gen_autonomous_state(W_out, hist.T, t_test)
+            s_t_test, v_t_test, t_test = tls.select_bounded(X_t_test.T, v_t_test, t_test)
+            
+            # Import the time series generated by the NGRC
+            exp_dict['v_t_train'] = v_t_train
+            exp_dict['v_out_test'] = v_t_test
+            exp_dict['is_bounded'] = RC.is_bounded 
+            exp_dict['t_train'] = t_train
+            exp_dict['t_test'] = t_test
+            
+            # Compute different error measures whenever the autonomous NGRC dynamics is bounded.
+            
+            if exp_dict['is_bounded']:
+                tau_lyap = 7.8125
+                #During training 
+                exp_dict['NRMSE_train'] = NRMSE(s_t_train.T, exp_dict['v_t_train'])
+        
+                exp_dict['VPT_train'] = valid_prediction_time(s_t_train.T, 
+                                                              exp_dict['v_t_train'], 
+                                                              dt,
+                                                              scale = tau_lyap)
+        
+                
+                t_loss_train = np.linspace(0, t_train[-1]-tau_lyap, 50)
+                exp_dict['Loss_train'] = loss(s_t_train.T, exp_dict['v_t_train'], t_vec = t_loss_train, 
+                                              tau = tau_lyap, 
+                                              dt = dt)
+        
+                #exp_dict['zmax_train'] = l2_zmax_map(s_t_train.T, v_t_train)
+        
+                exp_dict['abs_psd_train'] = kl_div_psd(s_t_train.T, 
+                                                       exp_dict['v_t_train'], 
+                                                       dt,
+                                                       nperseg=int(1/dt)*50)
+        
+                #During testing 
+                exp_dict['NRMSE_test'] = NRMSE(s_t_test, exp_dict['v_out_test'])
+        
+                exp_dict['VPT_test'] = valid_prediction_time(s_t_test, 
+                                                             exp_dict['v_out_test'], 
+                                                             dt,
+                                                             scale = tau_lyap)
+        
+                t_loss_test = np.linspace(0, t_test[-1]-tau_lyap, 50)
+                exp_dict['Loss_test'] = loss(s_t_test, exp_dict['v_out_test'], t_vec = t_loss_test, 
+                                             tau = tau_lyap, 
+                                             dt = dt)
+        
+                #exp_dict['zmax_test'] = l2_zmax_map(s_t_test, v_t_test)
+        
+                exp_dict['abs_psd_test'] = kl_div_psd(s_t_test, 
+                                                      exp_dict['v_out_test'], 
+                                                      dt,
+                                                      nperseg=int(1/dt)*50
+                                                      )
+            else:
+                exp_dict['NRMSE_train'] = -1
+                exp_dict['NRMSE_test'] = -1
+                exp_dict['VPT_train'] = -1
+                exp_dict['VPT_test'] = -1 
+                exp_dict['Loss_train'] = -1 
+                exp_dict['Loss_test'] = -1 
+                exp_dict['zmax_train'] = -1
+                exp_dict['zmax_test'] = -1
+                exp_dict['abs_psd_train'] = -1
+                exp_dict['abs_psd_test'] = -1
+                
+            # Import the many parameters for the given simulation. Easier to discover later on.
+            exp_dict['script_params'] = params
+                
+        return exp_dict
 #%%    
     def ngrc_euler_method(self, params):
         '''
@@ -1800,6 +2036,9 @@ class simulation():
         
         if self.experiment['script'] == 'ngrc_rk_method_DoubleScroll':
             exp_dict = self.ngrc_rk_method_DoubleScroll(params)
+            
+        if self.experiment['script'] == 'ngrc_rk_method_DoubleScroll_index':
+            exp_dict = self.ngrc_rk_method_DoubleScroll_index(params)
             
         if self.experiment['script'] == 'ngrc_euler_method':
             exp_dict = self.ngrc_euler_method(params)
