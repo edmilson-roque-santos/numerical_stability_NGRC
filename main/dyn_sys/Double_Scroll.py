@@ -153,7 +153,7 @@ def parametric_DoubleScroll(params, time_total = max_time_total,
         sol = solve_ivp(Double_Scroll_system, [0, time_total], initial_condition,
                         method= method,
                         args=(r1, r2, r4, alpha, ir), t_eval = t_eval, 
-                        first_step=0.001, 
+                        first_step = 0.001, 
                         max_step = 0.001,
                         rtol = 1e-5,
                         atol = 1e-8)

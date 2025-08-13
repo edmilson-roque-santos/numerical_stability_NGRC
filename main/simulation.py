@@ -992,8 +992,11 @@ class simulation():
                      method = 'RK45',
                      dt_fine = params['dt_fine'])
         
+        if params['filename_indexing'] == None:
+            params['filename_indexing'] = ttrain+ttest+warmup*dt
+            
         folder = 'data/input_data/'
-        ts_filename = folder+'DoubleScroll_ts_RK_{}_{}_{}.txt'.format(ttrain+ttest+warmup*dt, 
+        ts_filename = folder+'DoubleScroll_ts_RK_{}_{}_{}.txt'.format(params['filename_indexing'], 
                                                                 dt_fine, 
                                                                 seed)
         ts_sgn.generate_signal(parametric_DoubleScroll, 

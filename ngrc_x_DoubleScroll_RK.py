@@ -31,8 +31,8 @@ time_skip = 13
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 100
-ttest = 800
-seed = 1
+ttest = 1500
+seed = 2
 #Method of numerical integrating the differential equation
 method = 'RK45'
 # Fine sampling of the time series

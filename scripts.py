@@ -1059,7 +1059,7 @@ def subsampling_rk_maximum_degree_DoubleScroll(exp = False):
     
     vary_params = dict()
     
-    vary_params['max_deg_monomials'] = np.arange(2, 10, 1, dtype = int)
+    vary_params['max_deg_monomials'] = np.arange(2, 11, 1, dtype = int)
     
     experiment['exp_name'] = 'DS_CHO_max_deg_2_10'
     experiment['network_name'] = 'DoubleScroll'
@@ -1089,7 +1089,7 @@ def subsampling_rk_maximum_degree_DoubleScroll(exp = False):
     
     vary_params1 = dict()
     
-    vary_params1['max_deg_monomials'] = np.arange(2, 10, 1, dtype = int)
+    vary_params1['max_deg_monomials'] = np.arange(2, 11, 1, dtype = int)
     
     experiment1['exp_name'] = 'DS_SVD_max_deg_2_10'
     experiment1['network_name'] = 'DoubleScroll'
@@ -1118,7 +1118,7 @@ def subsampling_rk_maximum_degree_DoubleScroll(exp = False):
     
     vary_params2 = dict()
     
-    vary_params2['max_deg_monomials'] = np.arange(2, 10, 1, dtype = int)
+    vary_params2['max_deg_monomials'] = np.arange(2, 11, 1, dtype = int)
     
     experiment2['exp_name'] = 'DS_LU_max_deg_2_10'
     experiment2['network_name'] = 'Lorenz_63'
@@ -1177,7 +1177,7 @@ def x_coord_rk_DoubleScroll_metrics_time_lag(exp = False):
     vary_params = dict()
     vary_params['time_skip'] = np.arange(1, 31, 1, dtype = int)
     
-    experiment['exp_name'] = 'x_coord_DS_RK_deg_5_time_lag_1-31_ic_25'
+    experiment['exp_name'] = 'x_coord_DS_RK_deg_3_time_lag_1-31_ic_25'
     experiment['network_name'] = 'DoubleScroll'
     # Specify the script to use for the test.
     experiment['script'] = 'ngrc_rk_method_DoubleScroll_index'
@@ -1185,16 +1185,24 @@ def x_coord_rk_DoubleScroll_metrics_time_lag(exp = False):
     # Specify if we should perform testing
     experiment['testing'] = True
     
-    fixed_params = {'dt': 0.25,
-                    'delay_dimension' : 3,
-                    'max_deg_monomials' : 5,
-                    'ttrain': 100,
-                    'ttest': 1500,
+    ttrain = 100
+    ttest = 1500
+    delay_dimension = 3
+    dt = 0.25
+    time_skip_max = 30
+    warmup = (delay_dimension - 1)*time_skip_max
+    
+    fixed_params = {'dt': dt,
+                    'delay_dimension' : delay_dimension,
+                    'max_deg_monomials' : 3,
+                    'ttrain': ttrain,
+                    'ttest': ttest,
                     'Nseeds': 25,
                     'reg_params' : 0,
                     'normalize_ts' : True,
                     'normalize_cols' : False,
-                    'index' : np.array([0])
+                    'index' : np.array([0]),
+                    'filename_indexing': ttrain+ttest+warmup*dt 
         }
     
     if exp:

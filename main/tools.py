@@ -1895,7 +1895,7 @@ def fig_x_coord_rk_time_skip(res_dict,
     
         if nrows > 1:
             fig, ax = plt.subplots(nrows, 1, sharex= True, 
-                                   figsize = (5, 6), dpi = 300,
+                                   figsize = (5, 7), dpi = 300,
                                    constrained_layout=True)
         else:    
             fig, ax = plt.subplots(nrows, 1, sharex= True, figsize = (4, 2), dpi = 300)
@@ -1992,7 +1992,10 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
-            #ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            
+            if not fig_import:
+                ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            
             #ax[id_ax].set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
 
         elif key_metric == 'sigvals':
@@ -2019,7 +2022,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax2.set_yscale(plot_dict['y_scale'])
             #ax2.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
 
-            labels = [plot_dict['y_lim'][0], 1e9, 1e13, plot_dict['y_lim'][1]]
+            labels = [plot_dict['y_lim'][0], 1e3, 1e5, 1e7] #plot_dict['y_lim'][1]]
             ax2.set_yticks(labels, 
                              labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         else:
@@ -2051,7 +2054,8 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax[id_ax].set_xlabel(r'{}'.format(plot_dict['x_label']))
             ax[id_ax].set_xscale(plot_dict['x_scale'])        
             ax[id_ax].set_yscale(plot_dict['y_scale'])
-            #ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
+            if not fig_import:
+                ax[id_ax].set_ylabel(r'{}'.format(plot_dict['y_label']))
     
     if not fig_import:
         # Colorbar
@@ -2067,7 +2071,7 @@ def fig_x_coord_rk_time_skip(res_dict,
     
     else:
         if filename == None:
-            plt.tight_layout()
+            #plt.tight_layout()
             plt.show()
         else:
             
@@ -2612,7 +2616,7 @@ def fig_subsampling_solver_DoubleScroll(results_dict, x_axis, filename = None):
                                                             x_axis, ax[:, id_key], 
                                                             plot_dict = None,
                                                             plot_cond_number=True,
-                                                            labels_cond=[1e2, 1e4, 1e6, 1e8],
+                                                            labels_cond=[1e2, 1e6, 1e10, 1e14],
                                                             limits_fill = [2.5, 4.5])
             
         else:
