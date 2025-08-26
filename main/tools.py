@@ -2022,7 +2022,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax2.set_yscale(plot_dict['y_scale'])
             #ax2.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
 
-            labels = [plot_dict['y_lim'][0], 1e3, 1e5, 1e7] #plot_dict['y_lim'][1]]
+            labels = [1e5, 1e9, 1e13, 1e17]#[plot_dict['y_lim'][0], 1e3, 1e5, 1e7] #plot_dict['y_lim'][1]]
             ax2.set_yticks(labels, 
                              labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         else:
@@ -2219,7 +2219,7 @@ def fig_partial_measurements(res_dicts, x_dict, filename = None):
                                     filename = None,
                                     fig = fig2)
         
-    fig2.suptitle(r'RK45 method')
+    fig2.suptitle(r'4th order RK method')
     
     # 3. Create a new Axes for the colorbar using fig.add_axes()
     # Coordinates are [left, bottom, width, height] in figure coordinates (0 to 1)
