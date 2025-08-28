@@ -219,7 +219,6 @@ def fnn_array(data, de_max, Td, Ra=15):
    
 def plot_fnn(X_t, de_max = 10, time_lag = 15):
     result, percentage = fnn_array(X_t, de_max, time_lag)
-    print(result, percentage)
     
     plt.figure(dpi = 300)
     plt.plot(np.arange(10)+1, percentage*100, 'bo-')

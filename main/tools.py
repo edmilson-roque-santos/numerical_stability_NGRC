@@ -745,13 +745,18 @@ def fig_top_stat(X_t, u_t, dt, nperseg, filename = None,
 
 
 def fig_x_coord_reconstr(X_t, u_t, t, dt, scale,
-                         transient_plot, nperseg, filename = None):
+                         transient_plot, nperseg, 
+                         labels = None,
+                         bounds = None,
+                         filename = None):
     
     fig = plt.figure(figsize=(8, 3), dpi = 300)
     
     (fig1, fig2) = fig.subfigures(1, 2, width_ratios = [1.0, 1.0])
     
-    plot_testing(X_t, u_t, t, transient_plot, scale = scale, fig = fig1)
+    plot_testing(X_t, u_t, t, transient_plot, scale = scale, fig = fig1,
+                 labels = labels,
+                 bounds = bounds)
 
     plot_psd(X_t, u_t, dt, nperseg = nperseg, fig = fig2)
     fig2.suptitle('Power spectrum density comparison')

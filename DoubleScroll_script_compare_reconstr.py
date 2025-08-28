@@ -23,7 +23,7 @@ from main.base_polynomial import pre_settings as pre_set
 from main.base_polynomial import poly_library as polb
 #============================##============================##============================#
 #Time step - sampling
-dt = 0.25
+dt = 0.01
 #Delayed coordinates and time skip
 delay_dimension = 1
 #Time skip between time points
@@ -32,7 +32,7 @@ time_skip = 1
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 100
-ttest = 1500
+ttest = 800
 seed = 1
 #============================##============================##============================#
 #Generate synthetic data
@@ -59,7 +59,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 6
+degree = 3
 parameters['exp_name'] = 'DoubleScroll_reconstr'
 parameters['network_name'] = 'DoubleScroll'
 parameters['Nseeds'] = 1
@@ -203,7 +203,7 @@ if v_t_test.shape[0] == 3:
     tls.plot_2d_all_combinations(s_t_test, v_t_test)
     filename = params['exp_name']
     
-    title_names = [r'$V_1$-component', r'$V_2$-component', r'$I$-component']
+    title_names = [r'$V_1$-coordinate', r'$V_2$-coordinate', r'$I$-coordinate']
     tls.fig_top_stat(s_t_test, v_t_test, dt, nperseg=int(1/dt)*50, 
                      filename = None,
                      title = title_names) #filename+'_top_stats'

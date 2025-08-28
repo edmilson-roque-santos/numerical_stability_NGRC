@@ -32,7 +32,7 @@ warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
 ttrain = 100
 ttest = 1500
-seed = 2
+seed = 1
 #Method of numerical integrating the differential equation
 method = 'RK45'
 # Fine sampling of the time series
@@ -72,7 +72,7 @@ t_train, t_test = ts_sgn.t_train, ts_sgn.t_test
 ############# Construct the parameters dictionary ##############
 parameters = dict()
 
-degree = 4
+degree = 3
 parameters['exp_name'] = 'x_coord_DoubleScroll_rk'#
 parameters['network_name'] = 'DoubleScroll'
 parameters['Nseeds'] = 1
@@ -205,8 +205,11 @@ tls.plot_testing(s_t_test, v_t_test, t_test,
                  fig = None)
 
 tls.fig_x_coord_reconstr(s_t_test, v_t_test, t_test, dt, scale = 7.8125,
-                         transient_plot = int(7.8125*15/(dt)), nperseg=int(1/dt)*50,
-                         filename = None )#parameters['exp_name']
+                         transient_plot = int(7.8125*15/(dt)), 
+                         nperseg=int(1/dt)*50, 
+                         labels = [r'$V_1$'],
+                         bounds = [-1, 1],
+                         filename = parameters['exp_name'])#parameters['exp_name']
 
 # Compute comparison wrt to the original vector
 #c_matrix_true = get_true_coeff_Lorenz(params)
