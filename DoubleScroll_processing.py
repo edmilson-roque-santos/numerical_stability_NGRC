@@ -35,7 +35,7 @@ time_skip = 1
 #Warm up of the NGRC
 warmup = (delay_dimension - 1)*time_skip
 #Training and testing data
-ttrain = 200
+ttrain = 300
 ttest = 1
 seed = 1
 #Method of numerical integrating the differential equation

@@ -1914,7 +1914,7 @@ def fig_x_coord_rk_time_skip(res_dict,
     for id_key, key_metric in enumerate(res_dict.keys()):
         
         if key_metric == 'theta':
-            plot_dict['y_label'] = r'$\theta_x$'
+            plot_dict['y_label'] = r'$\theta_{V_1}$'
             plot_dict['x_scale'] = 'linear'
             plot_dict['y_scale'] = 'log'
             plot_dict['x_label'] = ''
@@ -1988,7 +1988,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax[id_ax].fill_between(x_dict, median, upper,
                                     color = plot_dict['color'], 
                                     alpha = 0.25)
-            ax[id_ax].fill_between(np.arange(14, 17), 
+            ax[id_ax].fill_between(np.arange(12, 15), 
                                     plot_dict['y_lim'][0], plot_dict['y_lim'][1],
                                     color = list_colors[1], 
                                     alpha = 0.25)
@@ -2027,7 +2027,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             ax2.set_yscale(plot_dict['y_scale'])
             #ax2.set_ylim(plot_dict['y_lim'][0], plot_dict['y_lim'][1])
 
-            labels = [1e5, 1e9, 1e13, 1e17]#[plot_dict['y_lim'][0], 1e3, 1e5, 1e7] #plot_dict['y_lim'][1]]
+            labels = [1e1, 1e3, 1e5, 1e7]#[plot_dict['y_lim'][0], 1e3, 1e5, 1e7] #plot_dict['y_lim'][1]]
             ax2.set_yticks(labels, 
                              labels = [fr'$10^{{{int(np.log10(val))}}}$' for val in labels])
         else:
@@ -2036,7 +2036,7 @@ def fig_x_coord_rk_time_skip(res_dict,
             norm = Normalize(vmin=0, vmax=1)
             colors = sns_colors(norm(perc))
             
-            ax[id_ax].fill_between(np.arange(14, 17), 
+            ax[id_ax].fill_between(np.arange(12, 15), 
                                     plot_dict['y_lim'][0], plot_dict['y_lim'][1],
                                     color = list_colors[1], 
                                     alpha = 0.25)
