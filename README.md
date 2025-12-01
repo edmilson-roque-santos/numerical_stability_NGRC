@@ -1,6 +1,9 @@
 # Numerical instabilities in NGRC
 
-This repository contains all the code necessary to reproduce the numerical simulations in the manuscript **"On the emergence of numerical instabilities in Next Generation Reservoir Computing"**.  
+This repository contains all the code necessary to reproduce the numerical simulations in the paper:
+Edmilson Roque dos Santos, Erik Bollt; **"On the emergence of numerical instabilities in Next Generation Reservoir Computing"**. Chaos 1 December 2025; 35 (12): 123102.
+https://doi.org/10.1063/5.0278709
+
 We study the conditioning of the NGRC feature matrix, exploring how hyperparameters influence the condition number and the NGRC dynamics. Our findings emphasize the need for careful hyperparameter tuning.
 
 ## Dependencies
